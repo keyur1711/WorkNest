@@ -43,54 +43,54 @@ export default function Home() {
     };
     loadData();
   }, []);
-  
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1">
         {/* Hero Section - Full Width with Image */}
         <section className="relative h-[90vh] min-h-[600px] flex items-center justify-center overflow-hidden">
           {/* Background Image */}
           <div className="absolute inset-0">
-            <img 
-              src={heroImage} 
-              alt="Premium Workspace" 
+            <img
+              src={heroImage}
+              alt="Premium Workspace"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/70 to-gray-900/60"></div>
           </div>
-          
+
           {/* Content */}
-          <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center text-white">
+          <div className="relative z-10 max-w-full mx-auto px-6 md:px-12 lg:px-16 text-center text-white">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full mb-6">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               <span className="text-sm font-semibold uppercase tracking-wider">Premium Workspaces</span>
             </div>
-            
+
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
               Find Your Perfect
               <span className="block text-blue-400">Workspace</span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed">
               Discover and book premium coworking spaces that adapt to your needs, whenever and wherever you need them.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link 
+              <Link
                 to="/search"
                 className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 Explore Spaces
               </Link>
-              <button 
+              <button
                 onClick={() => setTourOpen(true)}
                 className="px-8 py-4 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-semibold rounded-lg border border-white/20 transition-all duration-200"
               >
                 Book a Tour
               </button>
             </div>
-            
+
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               {[
@@ -106,7 +106,7 @@ export default function Home() {
               ))}
             </div>
           </div>
-          
+
           {/* Scroll Indicator */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,55 +116,55 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section className="py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+        <section className="py-20 bg-white dark:bg-gray-800">
+          <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Why Choose WorkNest</h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Why Choose WorkNest</h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 Everything you need to discover, compare, and book flexible workspaces with confidence.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                { 
-                  icon: '🔍', 
-                  title: 'Smart Search', 
-                  desc: 'Find the perfect workspace with advanced filters and real-time availability.' 
+                {
+                  icon: '🔍',
+                  title: 'Smart Search',
+                  desc: 'Find the perfect workspace with advanced filters and real-time availability.'
                 },
-                { 
-                  icon: '💳', 
-                  title: 'Transparent Pricing', 
-                  desc: 'Clear daily/hourly rates with no hidden fees or surprises.' 
+                {
+                  icon: '💳',
+                  title: 'Transparent Pricing',
+                  desc: 'Clear daily/hourly rates with no hidden fees or surprises.'
                 },
-                { 
-                  icon: '🔒', 
-                  title: 'Secure Payments', 
-                  desc: 'PCI-compliant checkout with reliable invoicing and refunds.' 
+                {
+                  icon: '🔒',
+                  title: 'Secure Payments',
+                  desc: 'PCI-compliant checkout with reliable invoicing and refunds.'
                 },
-                { 
-                  icon: '⭐', 
-                  title: 'Verified Spaces', 
-                  desc: 'Curated listings with authentic photos and verified reviews.' 
+                {
+                  icon: '⭐',
+                  title: 'Verified Spaces',
+                  desc: 'Curated listings with authentic photos and verified reviews.'
                 },
-                { 
-                  icon: '⏱️', 
-                  title: 'Real-time Availability', 
-                  desc: 'Accurate capacity and calendar slots to avoid conflicts.' 
+                {
+                  icon: '⏱️',
+                  title: 'Real-time Availability',
+                  desc: 'Accurate capacity and calendar slots to avoid conflicts.'
                 },
-                { 
-                  icon: '💬', 
-                  title: '24/7 Support', 
-                  desc: 'Priority help for urgent changes, tours, or billing questions.' 
+                {
+                  icon: '💬',
+                  title: '24/7 Support',
+                  desc: 'Priority help for urgent changes, tours, or billing questions.'
                 }
               ].map((feature, idx) => (
-                <div 
-                  key={idx} 
-                  className="p-8 bg-gray-50 rounded-2xl hover:shadow-lg transition-all duration-300 border border-gray-100"
+                <div
+                  key={idx}
+                  className="p-8 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-600"
                 >
                   <div className="text-5xl mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{feature.desc}</p>
                 </div>
               ))}
             </div>
@@ -172,13 +172,13 @@ export default function Home() {
         </section>
 
         {/* Workspace Types Gallery */}
-        <section className="py-20 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+        <section className="py-20 bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Explore by Type</h2>
-              <p className="text-xl text-gray-600">Find the workspace solution that fits your needs</p>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Explore by Type</h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300">Find the workspace solution that fits your needs</p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {loading ? (
                 <div className="col-span-full text-center py-8">
@@ -198,8 +198,8 @@ export default function Home() {
                       to="/search"
                       className="group relative h-64 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
                     >
-                      <img 
-                        src={workspaceImages[imageIndex]} 
+                      <img
+                        src={workspaceImages[imageIndex]}
                         alt={type}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
@@ -222,16 +222,16 @@ export default function Home() {
         </section>
 
         {/* Featured Spaces */}
-        <section className="py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+        <section className="py-20 bg-white dark:bg-gray-800">
+          <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16">
             <div className="flex items-center justify-between mb-12">
               <div>
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Featured Spaces</h2>
-                <p className="text-lg text-gray-600">Handpicked premium workspaces</p>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Featured Spaces</h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300">Handpicked premium workspaces</p>
               </div>
-              <Link 
+              <Link
                 to="/search"
-                className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold flex items-center gap-2"
               >
                 View All
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,7 +239,7 @@ export default function Home() {
                 </svg>
               </Link>
             </div>
-            
+
             {loading ? (
               <div className="text-center py-12">
                 <svg className="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -264,19 +264,19 @@ export default function Home() {
 
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700">
-          <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16 text-center text-white">
+          <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16 text-center text-white">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Find Your Workspace?</h2>
             <p className="text-xl text-blue-100 mb-10">
               Join thousands of teams using WorkNest to work better, together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
+              <Link
                 to="/search"
                 className="px-8 py-4 bg-white text-blue-600 hover:bg-gray-100 font-semibold rounded-lg transition-all duration-200 shadow-lg"
               >
                 Start Searching
               </Link>
-              <button 
+              <button
                 onClick={() => setTourOpen(true)}
                 className="px-8 py-4 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-semibold rounded-lg border border-white/20 transition-all duration-200"
               >

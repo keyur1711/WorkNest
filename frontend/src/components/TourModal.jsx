@@ -65,22 +65,22 @@ export default function TourModal({ open, onClose, spaceId, spaceName }) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
       <div className="relative z-[101] flex min-h-full items-center justify-center p-4">
         <div
-          className="relative w-full max-w-md transform overflow-hidden rounded-3xl border-2 border-slate-100 bg-white shadow-2xl transition"
+          className="relative w-full max-w-md transform overflow-hidden rounded-3xl border-2 border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl transition"
           onClick={(e) => e.stopPropagation()}
         >
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 transition hover:bg-slate-200"
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-gray-700 transition hover:bg-slate-200 dark:hover:bg-gray-600"
           >
-            <svg className="h-6 w-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-6 w-6 text-slate-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
           <div className="p-8">
             <div className="mb-6">
-              <div className="text-2xl font-black text-indigo-950">Book a Tour</div>
-              <p className="text-sm text-slate-600 mt-1">
+              <div className="text-2xl font-black text-indigo-950 dark:text-white">Book a Tour</div>
+              <p className="text-sm text-slate-600 dark:text-gray-400 mt-1">
                 {spaceName && `Tour for ${spaceName}`}
               </p>
             </div>
@@ -92,8 +92,8 @@ export default function TourModal({ open, onClose, spaceId, spaceName }) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Tour Requested!</h3>
-                <p className="text-gray-600">We'll confirm your visit shortly.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Tour Requested!</h3>
+                <p className="text-gray-600 dark:text-gray-300">We'll confirm your visit shortly.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -104,7 +104,7 @@ export default function TourModal({ open, onClose, spaceId, spaceName }) {
                 )}
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Tour Date</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Tour Date</label>
                   <input
                     type="date"
                     name="tourDate"
@@ -112,34 +112,34 @@ export default function TourModal({ open, onClose, spaceId, spaceName }) {
                     onChange={handleChange}
                     required
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 focus:outline-none focus:border-sky-400"
+                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Tour Time</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Tour Time</label>
                   <select
                     name="tourTime"
                     value={formData.tourTime}
                     onChange={handleChange}
                     required
-                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 focus:outline-none focus:border-sky-400"
+                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400"
                   >
-                    <option value="">Select time</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="13:00">1:00 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="17:00">5:00 PM</option>
+                    <option value="" className="dark:bg-gray-700">Select time</option>
+                    <option value="09:00" className="dark:bg-gray-700">9:00 AM</option>
+                    <option value="10:00" className="dark:bg-gray-700">10:00 AM</option>
+                    <option value="11:00" className="dark:bg-gray-700">11:00 AM</option>
+                    <option value="12:00" className="dark:bg-gray-700">12:00 PM</option>
+                    <option value="13:00" className="dark:bg-gray-700">1:00 PM</option>
+                    <option value="14:00" className="dark:bg-gray-700">2:00 PM</option>
+                    <option value="15:00" className="dark:bg-gray-700">3:00 PM</option>
+                    <option value="16:00" className="dark:bg-gray-700">4:00 PM</option>
+                    <option value="17:00" className="dark:bg-gray-700">5:00 PM</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Full Name</label>
                   <input
                     type="text"
                     name="contactName"
@@ -147,12 +147,12 @@ export default function TourModal({ open, onClose, spaceId, spaceName }) {
                     onChange={handleChange}
                     required
                     placeholder="John Doe"
-                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 focus:outline-none focus:border-sky-400"
+                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Email</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Email</label>
                   <input
                     type="email"
                     name="contactEmail"
@@ -160,12 +160,12 @@ export default function TourModal({ open, onClose, spaceId, spaceName }) {
                     onChange={handleChange}
                     required
                     placeholder="your.email@example.com"
-                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 focus:outline-none focus:border-sky-400"
+                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Phone</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Phone</label>
                   <input
                     type="tel"
                     name="contactPhone"
@@ -173,19 +173,19 @@ export default function TourModal({ open, onClose, spaceId, spaceName }) {
                     onChange={handleChange}
                     required
                     placeholder="+1 234 567 8900"
-                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 focus:outline-none focus:border-sky-400"
+                    className="w-full h-11 px-3 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Notes (Optional)</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Notes (Optional)</label>
                   <textarea
                     name="notes"
                     value={formData.notes}
                     onChange={handleChange}
                     rows="3"
                     placeholder="Any special requirements..."
-                    className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 focus:outline-none focus:border-sky-400"
+                    className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400"
                   />
                 </div>
 

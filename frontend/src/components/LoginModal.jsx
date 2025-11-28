@@ -77,15 +77,15 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
         <div
           role="dialog"
           aria-modal="true"
-          className="relative w-full max-w-2xl transform overflow-hidden rounded-3xl border-2 border-slate-100 bg-white shadow-2xl transition"
+          className="relative w-full max-w-2xl transform overflow-hidden rounded-3xl border-2 border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl transition"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 transition hover:bg-slate-200"
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-gray-700 transition hover:bg-slate-200 dark:hover:bg-gray-600"
           >
-            <svg className="h-6 w-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-6 w-6 text-slate-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -100,8 +100,8 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                   </svg>
                 </div>
                 <div>
-                  <div className="text-4xl font-black text-indigo-950">Sign In</div>
-                  <p className="mt-1 text-base text-slate-600">Enter your credentials to access your account</p>
+                  <div className="text-4xl font-black text-indigo-950 dark:text-white">Sign In</div>
+                  <p className="mt-1 text-base text-slate-600 dark:text-gray-400">Enter your credentials to access your account</p>
                 </div>
               </div>
             </div>
@@ -125,7 +125,7 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
               )}
               {/* Email Field */}
               <div>
-                <label className="mb-3 block text-base font-bold text-slate-700">
+                <label className="mb-3 block text-base font-bold text-slate-700 dark:text-gray-300">
                   Email Address
                 </label>
                 <div className="relative">
@@ -141,14 +141,14 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                     onChange={handleChange}
                     required
                     placeholder="your.email@example.com"
-                    className="h-14 w-full rounded-xl border-2 border-slate-200 bg-white pl-14 pr-5 text-base font-medium text-slate-900 transition placeholder:text-slate-400 hover:border-sky-300 focus:border-sky-400 focus:outline-none"
+                    className="h-14 w-full rounded-xl border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 pl-14 pr-5 text-base font-medium text-slate-900 dark:text-white transition placeholder:text-slate-400 hover:border-sky-300 focus:border-sky-400 focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
               <div>
-                <label className="mb-3 block text-base font-bold text-slate-700">
+                <label className="mb-3 block text-base font-bold text-slate-700 dark:text-gray-300">
                   Password
                 </label>
                 <div className="relative">
@@ -164,7 +164,7 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                     onChange={handleChange}
                     required
                     placeholder="Enter your password"
-                    className="h-14 w-full rounded-xl border-2 border-slate-200 bg-white pl-14 pr-14 text-base font-medium text-slate-900 transition placeholder:text-slate-400 hover:border-sky-300 focus:border-sky-400 focus:outline-none"
+                    className="h-14 w-full rounded-xl border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 pl-14 pr-14 text-base font-medium text-slate-900 dark:text-white transition placeholder:text-slate-400 hover:border-sky-300 focus:border-sky-400 focus:outline-none"
                   />
                   <button
                     type="button"
@@ -192,7 +192,7 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                     type="checkbox"
                     className="h-4 w-4 rounded border-slate-300 text-sky-500 focus:ring-2 focus:ring-sky-400"
                   />
-                  <span className="text-sm font-medium text-slate-700">Remember me</span>
+                  <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Remember me</span>
                 </label>
                 <button
                   type="button"
@@ -234,26 +234,26 @@ export default function LoginModal({ open, onClose, onSwitchToRegister }) {
                 <div className="w-full border-t border-slate-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-4 font-medium text-slate-500">Or continue with</span>
+                <span className="bg-white dark:bg-gray-800 px-4 font-medium text-slate-500 dark:text-gray-400">Or continue with</span>
               </div>
             </div>
 
             {/* Social Login Buttons */}
             <div className="mb-6 grid grid-cols-1 gap-3">
-              <button className="flex h-14 items-center justify-center gap-3 rounded-xl border-2 border-slate-200 bg-white px-4 font-bold text-slate-700 transition hover:border-sky-300 hover:bg-slate-50 text-base">
+              <button className="flex h-14 items-center justify-center gap-3 rounded-xl border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 font-bold text-slate-700 dark:text-white transition hover:border-sky-300 hover:bg-slate-50 dark:hover:bg-gray-600 text-base">
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                  <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
                 Google
               </button>
             </div>
 
             {/* Sign Up Link */}
-            <div className="border-t border-slate-100 pt-6 text-center">
-              <p className="text-sm text-slate-600">
+            <div className="border-t border-slate-100 dark:border-gray-700 pt-6 text-center">
+              <p className="text-sm text-slate-600 dark:text-gray-400">
                 Don't have an account?{' '}
                 <button
                   onClick={() => {

@@ -19,62 +19,63 @@ import AdminDashboard from './pages/AdminDashboard';
 import WorkspaceOwnerDashboard from './pages/WorkspaceOwnerDashboard';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import WorkspaceOwnerRoute from './components/WorkspaceOwnerRoute';
 
 const router = createBrowserRouter([
   { path: '/', element: <Home /> },
-  { 
-    path: '/search', 
+  {
+    path: '/search',
     element: (
       <ProtectedRoute>
         <Search />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/spaces/:id', 
+  {
+    path: '/spaces/:id',
     element: (
       <ProtectedRoute>
         <Details />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/favorites', 
+  {
+    path: '/favorites',
     element: (
       <ProtectedRoute>
         <Favorites />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/pricing', 
+  {
+    path: '/pricing',
     element: (
       <ProtectedRoute>
         <Pricing />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/locations', 
+  {
+    path: '/locations',
     element: (
       <ProtectedRoute>
         <Locations />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/about', 
+  {
+    path: '/about',
     element: (
       <ProtectedRoute>
         <About />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/contact', 
+  {
+    path: '/contact',
     element: (
       <ProtectedRoute>
         <Contact />
@@ -83,40 +84,40 @@ const router = createBrowserRouter([
   },
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
-  { 
-    path: '/dashboard', 
+  {
+    path: '/dashboard',
     element: (
       <ProtectedRoute>
         <Dashboard />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/profile', 
+  {
+    path: '/profile',
     element: (
       <ProtectedRoute>
         <Profile />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/bookings', 
+  {
+    path: '/bookings',
     element: (
       <ProtectedRoute>
         <BookingHistory />
       </ProtectedRoute>
     )
   },
-  { 
-    path: '/admin', 
+  {
+    path: '/admin',
     element: (
       <AdminRoute>
         <AdminDashboard />
       </AdminRoute>
     )
   },
-  { 
-    path: '/workspace-owner', 
+  {
+    path: '/workspace-owner',
     element: (
       <WorkspaceOwnerRoute>
         <WorkspaceOwnerDashboard />
@@ -129,7 +130,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <AuthProvider>
-    <RouterProvider router={router} />
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </AuthProvider>
   </React.StrictMode>
 );

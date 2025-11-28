@@ -40,17 +40,17 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     if (!formData.agreeToTerms) {
       setError('Please agree to the terms and conditions');
       return;
     }
-    
+
     setIsLoading(true);
     try {
       const response = await register({
@@ -63,7 +63,7 @@ export default function Register() {
         agreeToTerms: formData.agreeToTerms
       });
       setIsLoading(false);
-      
+
       setTimeout(() => {
         const userRole = response?.user?.role;
         if (userRole === 'workspace_owner') {
@@ -88,15 +88,15 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1 flex items-center justify-center py-12 px-6">
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Left Side - Image */}
           <div className="hidden lg:block relative rounded-2xl overflow-hidden shadow-2xl">
-            <img 
-              src={workspaceImage} 
-              alt="Workspace" 
+            <img
+              src={workspaceImage}
+              alt="Workspace"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-blue-800/60 to-transparent"></div>
@@ -109,10 +109,10 @@ export default function Register() {
           {/* Right Side - Register Form */}
           <div className="flex items-center">
             <div className="w-full max-w-md mx-auto">
-              <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
                 <div className="mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-                  <p className="text-gray-600">Sign up to get started with WorkNest</p>
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
+                  <p className="text-gray-600 dark:text-gray-400">Sign up to get started with WorkNest</p>
                 </div>
 
                 {error && (
@@ -124,7 +124,7 @@ export default function Register() {
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Full Name */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Full Name
                     </label>
                     <input
@@ -134,13 +134,13 @@ export default function Register() {
                       onChange={handleChange}
                       required
                       placeholder="John Doe"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
 
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Email Address
                     </label>
                     <input
@@ -150,13 +150,13 @@ export default function Register() {
                       onChange={handleChange}
                       required
                       placeholder="your.email@example.com"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
 
                   {/* Phone */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Phone (Optional)
                     </label>
                     <input
@@ -165,13 +165,13 @@ export default function Register() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+91 98765 43210"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Password
                     </label>
                     <div className="relative">
@@ -182,7 +182,7 @@ export default function Register() {
                         onChange={handleChange}
                         required
                         placeholder="Minimum 6 characters"
-                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <button
                         type="button"
@@ -205,7 +205,7 @@ export default function Register() {
 
                   {/* Confirm Password */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Confirm Password
                     </label>
                     <div className="relative">
@@ -216,7 +216,7 @@ export default function Register() {
                         onChange={handleChange}
                         required
                         placeholder="Re-enter your password"
-                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <button
                         type="button"
@@ -239,7 +239,7 @@ export default function Register() {
 
                   {/* Role Selection */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                       I want to
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -253,20 +253,18 @@ export default function Register() {
                               if (error) setError('');
                               setFormData({ ...formData, role: choice.value });
                             }}
-                            className={`p-4 rounded-lg border-2 text-left transition-all ${
-                              isActive
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300 bg-white'
-                            }`}
+                            className={`p-4 rounded-lg border-2 text-left transition-all ${isActive
+                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
+                              }`}
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <div className="font-semibold text-gray-900">{choice.label}</div>
-                              <div className={`w-4 h-4 rounded-full border-2 ${
-                                isActive ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
-                              }`}></div>
+                              <div className="font-semibold text-gray-900 dark:text-white">{choice.label}</div>
+                              <div className={`w-4 h-4 rounded-full border-2 ${isActive ? 'border-blue-500 bg-blue-500' : 'border-gray-300 dark:border-gray-500'
+                                }`}></div>
                             </div>
-                            <p className="text-xs text-gray-600 mb-2">{choice.subtitle}</p>
-                            <ul className="text-xs text-gray-500 space-y-1">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{choice.subtitle}</p>
+                            <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                               {choice.perks.map((perk, idx) => (
                                 <li key={idx}>• {perk}</li>
                               ))}
@@ -285,9 +283,9 @@ export default function Register() {
                       checked={formData.agreeToTerms}
                       onChange={handleChange}
                       required
-                      className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="mt-1 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 bg-white dark:bg-gray-700"
                     />
-                    <label className="text-sm text-gray-600">
+                    <label className="text-sm text-gray-600 dark:text-gray-400">
                       I agree to the{' '}
                       <Link to="/terms" className="text-blue-600 hover:text-blue-700 font-semibold">
                         Terms & Conditions
@@ -321,7 +319,7 @@ export default function Register() {
 
                 {/* Sign In Link */}
                 <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Already have an account?{' '}
                     <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700">
                       Sign in

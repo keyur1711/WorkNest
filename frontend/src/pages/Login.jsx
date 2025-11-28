@@ -49,17 +49,17 @@ export default function Login() {
 
       const response = await login(payload);
       setIsLoading(false);
-      
+
       // Verify token was saved before redirecting
       const stored = localStorage.getItem('wn:auth');
       if (!stored) {
         setError('Failed to save authentication. Please try again.');
         return;
       }
-      
+
       const userRole = response?.user?.role;
       console.log('Login successful, redirecting user with role:', userRole);
-      
+
       // Small delay to ensure auth context is updated
       setTimeout(() => {
         if (userRole === 'admin') {
@@ -90,15 +90,15 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1 flex items-center justify-center py-12 px-6">
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Left Side - Image */}
           <div className="hidden lg:block relative rounded-2xl overflow-hidden shadow-2xl">
-            <img 
-              src={workspaceImage} 
-              alt="Workspace" 
+            <img
+              src={workspaceImage}
+              alt="Workspace"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-blue-800/60 to-transparent"></div>
@@ -111,10 +111,10 @@ export default function Login() {
           {/* Right Side - Login Form */}
           <div className="flex items-center">
             <div className="w-full max-w-md mx-auto">
-              <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
                 <div className="mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Sign In</h1>
-                  <p className="text-gray-600">Enter your credentials to access your account</p>
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sign In</h1>
+                  <p className="text-gray-600 dark:text-gray-300">Enter your credentials to access your account</p>
                 </div>
 
                 {error && (
@@ -126,7 +126,7 @@ export default function Login() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Email Address
                     </label>
                     <input
@@ -136,13 +136,13 @@ export default function Login() {
                       onChange={handleChange}
                       required
                       placeholder="your.email@example.com"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Password
                     </label>
                     <div className="relative">
@@ -153,7 +153,7 @@ export default function Login() {
                         onChange={handleChange}
                         required
                         placeholder="Enter your password"
-                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <button
                         type="button"
@@ -177,7 +177,7 @@ export default function Login() {
                   {/* Role Selection */}
                   {!isAdminLogin && (
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                         Login As
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -188,19 +188,17 @@ export default function Login() {
                               type="button"
                               key={option.value}
                               onClick={() => handleRoleSelect(option.value)}
-                              className={`p-4 rounded-lg border-2 text-left transition-all ${
-                                isActive
-                                  ? 'border-blue-500 bg-blue-50'
-                                  : 'border-gray-200 hover:border-gray-300 bg-white'
-                              }`}
+                              className={`p-4 rounded-lg border-2 text-left transition-all ${isActive
+                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700'
+                                }`}
                             >
                               <div className="flex items-center justify-between mb-2">
-                                <div className="font-semibold text-gray-900">{option.label}</div>
-                                <div className={`w-4 h-4 rounded-full border-2 ${
-                                  isActive ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
-                                }`}></div>
+                                <div className="font-semibold text-gray-900 dark:text-white">{option.label}</div>
+                                <div className={`w-4 h-4 rounded-full border-2 ${isActive ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                                  }`}></div>
                               </div>
-                              <p className="text-xs text-gray-600">{option.tagline}</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-300">{option.tagline}</p>
                             </button>
                           );
                         })}
@@ -217,7 +215,7 @@ export default function Login() {
                         onChange={() => setIsAdminLogin(!isAdminLogin)}
                         className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700">Admin Login</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Admin Login</span>
                     </label>
                     <button
                       type="button"
@@ -250,7 +248,7 @@ export default function Login() {
 
                 {/* Sign Up Link */}
                 <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Don't have an account?{' '}
                     <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-700">
                       Sign up for free
