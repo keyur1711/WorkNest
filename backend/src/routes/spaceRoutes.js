@@ -83,7 +83,7 @@ router.get('/filters', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const space = await Space.findById(req.params.id);
+    const space = await Space.findById(req.params.id).populate('ownerUser', 'fullName phone email');
     if (!space) {
       return res.status(404).json({ message: 'Space not found' });
     }
@@ -93,6 +93,24 @@ router.get('/:id', async (req, res) => {
     if (error.name === 'CastError') {
       return res.status(400).json({ message: 'Invalid space id' });
     }
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get reviews for a space
+router.get('/:id/reviews', async (req, res) => {
+  try {
+    const Review = require('../models/Review');
+    const reviews = await Review.find({ 
+      space: req.params.id,
+      status: 'published'
+    })
+      .populate('user', 'fullName')
+      .sort({ createdAt: -1 });
+    
+    return res.json({ reviews });
+  } catch (error) {
+    console.error('Fetch reviews error:', error);
     return res.status(500).json({ message: 'Server error' });
   }
 });

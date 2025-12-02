@@ -108,7 +108,7 @@ export default function AdminDashboard() {
         message: err.message,
         payload: err.payload
       });
-      
+
       if (err.status === 401) {
         // Check if token still exists - if it does, might be a backend issue
         const stored = localStorage.getItem('wn:auth');
@@ -129,6 +129,7 @@ export default function AdminDashboard() {
   const loadUsers = async () => {
     try {
       setError(null);
+      setLoading(true);
       const data = await getUsers();
       setUsers(data.users || []);
     } catch (err) {
@@ -138,12 +139,15 @@ export default function AdminDashboard() {
       } else {
         setError(err.message || 'Failed to load users');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const loadSpaces = async () => {
     try {
       setError(null);
+      setLoading(true);
       const data = await getAdminSpaces();
       setSpaces(data.spaces || []);
     } catch (err) {
@@ -153,12 +157,15 @@ export default function AdminDashboard() {
       } else {
         setError(err.message || 'Failed to load spaces');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const loadBookings = async () => {
     try {
       setError(null);
+      setLoading(true);
       const data = await getAdminBookings();
       setBookings(data.bookings || []);
     } catch (err) {
@@ -168,12 +175,15 @@ export default function AdminDashboard() {
       } else {
         setError(err.message || 'Failed to load bookings');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const loadTourBookings = async () => {
     try {
       setError(null);
+      setLoading(true);
       const data = await getAdminTourBookings();
       setTourBookings(data.tourBookings || []);
     } catch (err) {
@@ -183,6 +193,8 @@ export default function AdminDashboard() {
       } else {
         setError(err.message || 'Failed to load tour bookings');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -235,15 +247,15 @@ export default function AdminDashboard() {
 
   if (loading && !stats) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <svg className="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin h-12 w-12 text-blue-600 dark:text-blue-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <p className="mt-4 text-gray-600">Loading admin dashboard...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading admin dashboard...</p>
           </div>
         </main>
         <Footer />
@@ -252,28 +264,28 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 md:px-12 lg:px-16 py-10">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage users, spaces, bookings, and platform statistics</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Admin Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage users, spaces, bookings, and platform statistics</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-red-700 font-medium">{error}</p>
+                <p className="text-red-700 dark:text-red-400 font-medium">{error}</p>
               </div>
               {error.includes('session has expired') && (
-                <a 
+                <a
                   href="/login"
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white font-semibold rounded-lg transition-colors"
                 >
                   Go to Login
                 </a>
@@ -284,7 +296,7 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <div className="mb-8">
-          <div className="border-b border-gray-200">
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <nav className="-mb-px flex space-x-8">
               {[
                 { key: 'stats', label: 'Statistics' },
@@ -296,11 +308,10 @@ export default function AdminDashboard() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`py-4 px-1 border-b-2 font-semibold text-sm transition-colors ${
-                    activeTab === tab.key
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-semibold text-sm transition-colors ${activeTab === tab.key
+                    ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -310,95 +321,101 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Tab */}
-        {activeTab === 'stats' && stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
+        {activeTab === 'stats' && (
+          stats ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
                 </div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.totalUsers}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Users</div>
+                <div className="text-xs text-gray-500 dark:text-gray-500">Owners: {stats.workspaceOwners}</div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalUsers}</div>
-              <div className="text-sm text-gray-600 mb-1">Total Users</div>
-              <div className="text-xs text-gray-500">Owners: {stats.workspaceOwners}</div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
                 </div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.totalSpaces}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Total Spaces</div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalSpaces}</div>
-              <div className="text-sm text-gray-600">Total Spaces</div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
                 </div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.totalBookings}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Bookings</div>
+                <div className="text-xs text-gray-500 dark:text-gray-500">Active: {stats.activeBookings} | Pending: {stats.pendingBookings}</div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.totalBookings}</div>
-              <div className="text-sm text-gray-600 mb-1">Total Bookings</div>
-              <div className="text-xs text-gray-500">Active: {stats.activeBookings} | Pending: {stats.pendingBookings}</div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
                 </div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">₹{stats.totalRevenue?.toLocaleString() || 0}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Revenue</div>
+                <div className="text-xs text-gray-500 dark:text-gray-500">Recent (7d): {stats.recentBookings}</div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">₹{stats.totalRevenue?.toLocaleString() || 0}</div>
-              <div className="text-sm text-gray-600 mb-1">Total Revenue</div>
-              <div className="text-xs text-gray-500">Recent (7d): {stats.recentBookings}</div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400">No statistics available. Please try refreshing the page.</p>
+            </div>
+          )
         )}
 
         {/* Users Tab */}
         {activeTab === 'users' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-900/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {users.length === 0 ? (
                     <tr>
-                      <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan="4" className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                         No users found
                       </td>
                     </tr>
                   ) : (
                     users.map((u) => (
-                      <tr key={u._id} className="hover:bg-gray-50">
+                      <tr key={u._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{u.fullName}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">{u.fullName}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-600">{u.email}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-300">{u.email}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <select
                             value={u.role}
                             onChange={(e) => handleUpdateUserRole(u._id, e.target.value)}
-                            className="text-sm px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="text-sm px-3 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
                           >
                             <option value="user">User</option>
                             <option value="workspace_owner">Workspace Owner</option>
@@ -409,7 +426,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleDeleteUser(u._id)}
                             disabled={u._id === user?._id}
-                            className="text-red-600 hover:text-red-800 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Delete
                           </button>
@@ -470,12 +487,11 @@ export default function AdminDashboard() {
                       </p>
                       <div className="flex items-center gap-4">
                         <p className="text-base font-semibold text-gray-900">₹{booking.totalAmount}</p>
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                          booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
                           booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                          booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
+                            booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                              'bg-gray-100 text-gray-700'
+                          }`}>
                           {booking.status}
                         </span>
                       </div>
@@ -513,12 +529,11 @@ export default function AdminDashboard() {
                       <p className="text-sm text-gray-600 mb-2">
                         {tour.contactName} ({tour.contactEmail}) • {new Date(tour.tourDate).toLocaleDateString()} at {tour.tourTime}
                       </p>
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                        tour.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${tour.status === 'confirmed' ? 'bg-green-100 text-green-700' :
                         tour.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                        tour.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
+                          tour.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                            'bg-gray-100 text-gray-700'
+                        }`}>
                         {tour.status}
                       </span>
                     </div>

@@ -14,7 +14,7 @@ router.post(
   [
     body('spaceId').notEmpty().withMessage('Space ID is required'),
     body('type').isIn(['Hot Desk', 'Dedicated Desk', 'Private Office', 'Meeting Room']).withMessage('Invalid booking type'),
-    body('bookingDate').isISO8601().withMessage('Valid booking date is required')
+    body('bookingDate').notEmpty().withMessage('Valid booking date is required')
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -25,6 +25,22 @@ router.post(
     try {
       const { spaceId, type, bookingDate } = req.body;
 
+      // Validate date format (accepts both YYYY-MM-DD and ISO8601)
+      const dateObj = new Date(bookingDate);
+      if (isNaN(dateObj.getTime())) {
+        return res.status(400).json({ message: 'Invalid booking date format' });
+      }
+
+      // Ensure date is not in the past
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const bookingDateOnly = new Date(dateObj);
+      bookingDateOnly.setHours(0, 0, 0, 0);
+      
+      if (bookingDateOnly < today) {
+        return res.status(400).json({ message: 'Booking date cannot be in the past' });
+      }
+
       const space = await Space.findById(spaceId);
       if (!space) {
         return res.status(404).json({ message: 'Space not found' });
@@ -34,9 +50,9 @@ router.post(
         user: req.user.id,
         space: spaceId,
         spaceName: space.name,
-        spaceLocation: space.locationText,
+        spaceLocation: space.locationText || space.city,
         type,
-        bookingDate: new Date(bookingDate),
+        bookingDate: dateObj,
         pricePerDay: space.pricePerDay,
         totalAmount: space.pricePerDay,
         status: 'pending',
@@ -50,7 +66,24 @@ router.post(
       return res.status(201).json({ booking: populatedBooking });
     } catch (error) {
       console.error('Create booking error:', error);
-      return res.status(500).json({ message: 'Server error' });
+      
+      // Provide more specific error messages
+      if (error.name === 'ValidationError') {
+        const validationErrors = Object.values(error.errors).map(err => err.message);
+        return res.status(400).json({ 
+          message: validationErrors.join(', '),
+          errors: validationErrors
+        });
+      }
+      
+      if (error.name === 'CastError') {
+        return res.status(400).json({ message: 'Invalid space ID format' });
+      }
+      
+      return res.status(500).json({ 
+        message: error.message || 'Server error',
+        error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   }
 );

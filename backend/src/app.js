@@ -11,6 +11,8 @@ const bookingRoutes = require('./routes/bookingRoutes');
 const favoritesRoutes = require('./routes/favoritesRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const ownerRoutes = require('./routes/ownerRoutes');
+const contactRoutes = require('./routes/contactRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 
@@ -168,6 +170,8 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/owner', ownerRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });

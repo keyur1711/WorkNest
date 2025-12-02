@@ -125,38 +125,80 @@ export default function WorkspaceOwnerDashboard() {
   };
 
   const loadOverview = async () => {
-    const data = await ownerService.getOverview();
-    setOverview(data);
+    try {
+      const data = await ownerService.getOverview();
+      setOverview(data);
+      setError('');
+    } catch (err) {
+      console.error('Error loading overview:', err);
+      setError(err.message || 'Failed to load overview');
+    }
   };
 
   const loadSpaces = async () => {
-    const data = await ownerService.getSpaces();
-    setSpaces(data.spaces || []);
+    try {
+      const data = await ownerService.getSpaces();
+      setSpaces(data.spaces || []);
+      setError('');
+    } catch (err) {
+      console.error('Error loading spaces:', err);
+      setError(err.message || 'Failed to load spaces');
+    }
   };
 
   const loadBookings = async (scope = 'active') => {
-    const data = await ownerService.getBookings(scope);
-    setBookings(data.bookings || []);
+    try {
+      const data = await ownerService.getBookings(scope);
+      setBookings(data.bookings || []);
+      setError('');
+    } catch (err) {
+      console.error('Error loading bookings:', err);
+      setError(err.message || 'Failed to load bookings');
+    }
   };
 
   const loadTourBookings = async () => {
-    const data = await ownerService.getTourRequests();
-    setTourBookings(data.tourBookings || []);
+    try {
+      const data = await ownerService.getTourRequests();
+      setTourBookings(data.tourBookings || []);
+      setError('');
+    } catch (err) {
+      console.error('Error loading tour bookings:', err);
+      setError(err.message || 'Failed to load tour bookings');
+    }
   };
 
   const loadAgreements = async () => {
-    const data = await ownerService.getAgreements();
-    setAgreements(data.agreements || []);
+    try {
+      const data = await ownerService.getAgreements();
+      setAgreements(data.agreements || []);
+      setError('');
+    } catch (err) {
+      console.error('Error loading agreements:', err);
+      setError(err.message || 'Failed to load agreements');
+    }
   };
 
   const loadReviews = async () => {
-    const data = await ownerService.getReviews();
-    setReviews(data.reviews || []);
+    try {
+      const data = await ownerService.getReviews();
+      setReviews(data.reviews || []);
+      setError('');
+    } catch (err) {
+      console.error('Error loading reviews:', err);
+      setError(err.message || 'Failed to load reviews');
+    }
   };
 
   const loadEarningsReport = async () => {
-    const data = await ownerService.getEarningsReport();
-    setEarningsReport(data.earnings || []);
+    try {
+      const data = await ownerService.getEarningsReport();
+      setEarningsReport(data.earnings || []);
+      setError('');
+    } catch (err) {
+      console.error('Error loading earnings report:', err);
+      setError(err.message || 'Failed to load earnings report');
+    }
   };
 
   const handleCapabilitySelect = (capability) => {
@@ -260,9 +302,14 @@ export default function WorkspaceOwnerDashboard() {
 
   const toggleReviewStatus = async (review) => {
     resetMessages();
-    const nextStatus = review.status === 'published' ? 'hidden' : 'published';
-    await ownerService.updateReview(review._id, { status: nextStatus });
-    await loadReviews();
+    try {
+      const nextStatus = review.status === 'published' ? 'hidden' : 'published';
+      await ownerService.updateReview(review._id, { status: nextStatus });
+      await loadReviews();
+      setSuccess('Review status updated.');
+    } catch (err) {
+      setError(err.message || 'Failed to update review status.');
+    }
   };
 
   const handleSupportSubmit = async (event) => {
@@ -282,15 +329,15 @@ export default function WorkspaceOwnerDashboard() {
 
   if (pageLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-white">
+      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <svg className="animate-spin h-12 w-12 text-sky-600 mx-auto" viewBox="0 0 24 24" fill="none">
+            <svg className="animate-spin h-12 w-12 text-sky-600 dark:text-sky-400 mx-auto" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z" />
             </svg>
-            <p className="mt-4 text-gray-600">Loading workspace owner dashboard...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading workspace owner dashboard...</p>
           </div>
         </main>
         <Footer />
@@ -299,24 +346,24 @@ export default function WorkspaceOwnerDashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 md:px-12 lg:px-16 py-10">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">Workspace Owner Dashboard</h1>
-          <p className="text-gray-600 mt-2">Operate every workspace workflow from a single control centre.</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Workspace Owner Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Operate every workspace workflow from a single control centre.</p>
         </div>
 
-        {error && <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-600">{error}</div>}
-        {success && <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700">{success}</div>}
+        {error && <div className="mb-6 rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-rose-600 dark:text-rose-400">{error}</div>}
+        {success && <div className="mb-6 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-emerald-700 dark:text-emerald-400">{success}</div>}
 
         <section className="mb-10">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-sky-600">Owner Capabilities</p>
-              <h2 className="text-2xl font-bold text-gray-900 mt-1">Everything you can manage with WorkNest</h2>
+              <p className="text-sm font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400">Owner Capabilities</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">Everything you can manage with WorkNest</h2>
             </div>
-            <span className="text-sm text-gray-500">{OWNER_CAPABILITIES.length} workflows</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{OWNER_CAPABILITIES.length} workflows</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {OWNER_CAPABILITIES.map((capability) => (
@@ -324,25 +371,24 @@ export default function WorkspaceOwnerDashboard() {
                 key={capability.key}
                 type="button"
                 onClick={() => handleCapabilitySelect(capability)}
-                className="text-left p-5 rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-md transition"
+                className="text-left p-5 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition"
               >
                 <div className="text-3xl mb-3">{capability.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-900">{capability.title}</h3>
-                <p className="text-sm text-gray-600 mt-1">{capability.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{capability.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{capability.description}</p>
               </button>
             ))}
           </div>
         </section>
 
-        <div id="owner-tabs" className="mb-6 border-b border-gray-200 overflow-x-auto">
+        <div id="owner-tabs" className="mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
           <nav className="-mb-px flex space-x-6">
             {DASHBOARD_TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`py-3 px-1 border-b-2 font-semibold text-sm whitespace-nowrap ${
-                  activeTab === tab.key ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500'
-                }`}
+                className={`py-3 px-1 border-b-2 font-semibold text-sm whitespace-nowrap ${activeTab === tab.key ? 'border-sky-500 text-sky-600 dark:text-sky-400' : 'border-transparent text-gray-500 dark:text-gray-400'
+                  }`}
               >
                 {tab.label}
               </button>
@@ -360,33 +406,33 @@ export default function WorkspaceOwnerDashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+              <div className="lg:col-span-2 p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
                 <SectionHeader title="Revenue trend" helper="Monthly totals" />
                 {overview.trends.earningsByMonth.length === 0 ? (
                   <EmptyState message="No revenue yet. Earnings will appear once bookings are confirmed." />
                 ) : (
                   <div className="space-y-3 mt-4">
                     {overview.trends.earningsByMonth.map((entry) => (
-                      <div key={entry._id} className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 text-sm">
-                        <span className="font-medium text-slate-600">{entry._id}</span>
-                        <span className="font-semibold text-slate-900">{formatCurrency(entry.total)}</span>
+                      <div key={entry._id} className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-gray-700 last:border-0 text-sm">
+                        <span className="font-medium text-slate-600 dark:text-gray-400">{entry._id}</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">{formatCurrency(entry.total)}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-              <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+              <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
                 <SectionHeader title="Top earning spaces" helper="Based on bookings" />
                 {overview.trends.topSpaces.length === 0 ? (
                   <EmptyState message="No booking data yet." />
                 ) : (
                   <div className="space-y-4 mt-4 text-sm">
                     {overview.trends.topSpaces.map((space) => (
-                      <div key={space.spaceId} className="p-4 border border-slate-100 rounded-xl">
-                        <p className="font-semibold text-slate-900">{space.name}</p>
-                        <p className="text-xs text-slate-500">{space.city}</p>
-                        <p className="text-xs text-slate-600 mt-1">Revenue: {formatCurrency(space.totalRevenue)}</p>
-                        <p className="text-xs text-slate-500">Bookings: {space.bookings}</p>
+                      <div key={space.spaceId} className="p-4 border border-slate-100 dark:border-gray-700 rounded-xl">
+                        <p className="font-semibold text-slate-900 dark:text-white">{space.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-gray-400">{space.city}</p>
+                        <p className="text-xs text-slate-600 dark:text-gray-300 mt-1">Revenue: {formatCurrency(space.totalRevenue)}</p>
+                        <p className="text-xs text-slate-500 dark:text-gray-400">Bookings: {space.bookings}</p>
                       </div>
                     ))}
                   </div>
@@ -394,15 +440,15 @@ export default function WorkspaceOwnerDashboard() {
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+            <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <SectionHeader title="Workspace earnings report" helper="Per listing breakdown" />
               {earningsReport.length === 0 ? (
                 <EmptyState message="No earnings data available yet." />
               ) : (
                 <div className="overflow-x-auto mt-4 text-sm">
-                  <table className="min-w-full text-left divide-y divide-slate-100">
+                  <table className="min-w-full text-left divide-y divide-slate-100 dark:divide-gray-700">
                     <thead>
-                      <tr className="text-xs uppercase text-slate-500">
+                      <tr className="text-xs uppercase text-slate-500 dark:text-gray-400">
                         <th className="py-2">Workspace</th>
                         <th className="py-2">City</th>
                         <th className="py-2">Paid revenue</th>
@@ -410,11 +456,11 @@ export default function WorkspaceOwnerDashboard() {
                         <th className="py-2">Completed</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-800">
+                    <tbody className="divide-y divide-slate-100 dark:divide-gray-700 text-slate-800 dark:text-gray-200">
                       {earningsReport.map((row) => (
                         <tr key={row.spaceId}>
                           <td className="py-2 font-semibold">{row.name}</td>
-                          <td className="py-2 text-slate-500">{row.city}</td>
+                          <td className="py-2 text-slate-500 dark:text-gray-400">{row.city}</td>
                           <td className="py-2">{formatCurrency(row.paidRevenue)}</td>
                           <td className="py-2">{formatCurrency(row.totalRevenue)}</td>
                           <td className="py-2">{row.completed}</td>
@@ -430,7 +476,7 @@ export default function WorkspaceOwnerDashboard() {
 
         {activeTab === 'spaces' && (
           <section className="space-y-8">
-            <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+            <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <SectionHeader title={editingSpaceId ? 'Update workspace' : 'Create workspace'} helper="Provide detail-rich listings" />
               <form onSubmit={handleSpaceSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <TextField label="Workspace name" value={spaceForm.name} onChange={(value) => setSpaceForm((prev) => ({ ...prev, name: value }))} required />
@@ -444,7 +490,7 @@ export default function WorkspaceOwnerDashboard() {
                 </div>
                 <div className="md:col-span-2 flex items-center gap-3">
                   {editingSpaceId && (
-                    <button type="button" onClick={() => { setEditingSpaceId(null); setSpaceForm(DEFAULT_SPACE_FORM); }} className="px-4 py-3 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold">
+                    <button type="button" onClick={() => { setEditingSpaceId(null); setSpaceForm(DEFAULT_SPACE_FORM); }} className="px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-600 text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-700 text-sm font-semibold">
                       Cancel
                     </button>
                   )}
@@ -456,23 +502,23 @@ export default function WorkspaceOwnerDashboard() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-900">Your listings</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Your listings</h3>
               {spaces.length === 0 ? (
                 <EmptyState message="No spaces yet. Use the form above to publish your first listing." />
               ) : (
                 spaces.map((space) => (
-                  <div key={space._id} className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div key={space._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
-                      <p className="text-lg font-bold text-slate-900">{space.name}</p>
-                      <p className="text-sm text-slate-500">{space.city} • {space.type}</p>
-                      <p className="text-sm text-slate-800 mt-1">Rate: {formatCurrency(space.pricePerDay)}</p>
-                      <p className="text-xs text-slate-500 mt-1">Amenities: {(space.amenities || []).join(', ') || '—'}</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">{space.name}</p>
+                      <p className="text-sm text-slate-500 dark:text-gray-400">{space.city} • {space.type}</p>
+                      <p className="text-sm text-slate-800 dark:text-gray-200 mt-1">Rate: {formatCurrency(space.pricePerDay)}</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">Amenities: {(space.amenities || []).join(', ') || '—'}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <button className="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-semibold" onClick={() => startSpaceEdit(space)}>
+                      <button className="px-4 py-2 rounded-lg border border-slate-200 dark:border-gray-600 text-slate-700 dark:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-700 text-sm font-semibold" onClick={() => startSpaceEdit(space)}>
                         Edit
                       </button>
-                      <button className="px-4 py-2 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 text-sm font-semibold" onClick={() => handleDeleteSpace(space._id)}>
+                      <button className="px-4 py-2 rounded-lg border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-sm font-semibold" onClick={() => handleDeleteSpace(space._id)}>
                         Delete
                       </button>
                     </div>
@@ -487,13 +533,13 @@ export default function WorkspaceOwnerDashboard() {
           <section className="space-y-6">
             <div className="flex items-center justify-between">
               <SectionHeader title="Bookings" helper="Monitor reservations and history" />
-              <div className="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-50">
+              <div className="inline-flex rounded-xl border border-slate-200 dark:border-gray-600 p-1 bg-slate-50 dark:bg-gray-800">
                 {['active', 'history'].map((scope) => (
                   <button
                     key={scope}
                     type="button"
                     onClick={() => setBookingScope(scope)}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold ${bookingScope === scope ? 'bg-white text-sky-600 shadow' : 'text-slate-500'}`}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold ${bookingScope === scope ? 'bg-white dark:bg-gray-700 text-sky-600 dark:text-sky-400 shadow' : 'text-slate-500 dark:text-gray-400'}`}
                   >
                     {scope === 'active' ? 'Active' : 'History'}
                   </button>
@@ -505,23 +551,22 @@ export default function WorkspaceOwnerDashboard() {
             ) : (
               <div className="space-y-4">
                 {bookings.map((booking) => (
-                  <div key={booking._id} className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4">
+                  <div key={booking._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4">
                     <div>
-                      <p className="font-semibold text-slate-900">{booking.space?.name}</p>
-                      <p className="text-xs text-slate-500">{booking.space?.city}</p>
-                      <p className="text-sm text-slate-600 mt-1">Guest: {booking.user?.fullName || booking.user?.email}</p>
+                      <p className="font-semibold text-slate-900 dark:text-white">{booking.space?.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400">{booking.space?.city}</p>
+                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Guest: {booking.user?.fullName || booking.user?.email}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600">Date: {new Date(booking.bookingDate).toLocaleDateString()}</p>
-                      <p className="text-sm text-slate-600">Type: {booking.type}</p>
+                      <p className="text-sm text-slate-600 dark:text-gray-300">Date: {new Date(booking.bookingDate).toLocaleDateString()}</p>
+                      <p className="text-sm text-slate-600 dark:text-gray-300">Type: {booking.type}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-slate-800">{formatCurrency(booking.totalAmount)}</p>
-                      <span className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                        booking.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' :
-                        booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                        'bg-slate-100 text-slate-600'
-                      }`}>
+                      <p className="text-sm font-semibold text-slate-800 dark:text-gray-200">{formatCurrency(booking.totalAmount)}</p>
+                      <span className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                        booking.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                          'bg-slate-100 text-slate-600 dark:bg-gray-700 dark:text-gray-300'
+                        }`}>
                         {booking.status}
                       </span>
                     </div>
@@ -540,18 +585,18 @@ export default function WorkspaceOwnerDashboard() {
             ) : (
               <div className="space-y-4">
                 {tourBookings.map((tour) => (
-                  <div key={tour._id} className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4">
+                  <div key={tour._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4">
                     <div>
-                      <p className="font-semibold text-slate-900">{tour.space?.name}</p>
-                      <p className="text-xs text-slate-500">{tour.space?.city}</p>
+                      <p className="font-semibold text-slate-900 dark:text-white">{tour.space?.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400">{tour.space?.city}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600">{tour.contactName}</p>
-                      <p className="text-xs text-slate-500">{tour.contactEmail}</p>
+                      <p className="text-sm text-slate-600 dark:text-gray-300">{tour.contactName}</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400">{tour.contactEmail}</p>
                     </div>
-                    <div className="text-right text-sm text-slate-600">
+                    <div className="text-right text-sm text-slate-600 dark:text-gray-300">
                       {new Date(tour.tourDate).toLocaleDateString()} • {tour.tourTime}
-                      <p className="text-xs text-slate-500">{tour.status}</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400">{tour.status}</p>
                     </div>
                   </div>
                 ))}
@@ -562,7 +607,7 @@ export default function WorkspaceOwnerDashboard() {
 
         {activeTab === 'agreements' && (
           <section className="space-y-6">
-            <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+            <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <SectionHeader title="Store agreements" helper="Keep documents handy for every booking" />
               <form onSubmit={handleAgreementSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <SelectField label="Workspace" value={agreementForm.space} onChange={(value) => setAgreementForm((prev) => ({ ...prev, space: value }))} options={ownerSpacesForSelect} required />
@@ -570,26 +615,26 @@ export default function WorkspaceOwnerDashboard() {
                 <TextField label="Document link" value={agreementForm.documentUrl} onChange={(value) => setAgreementForm((prev) => ({ ...prev, documentUrl: value }))} placeholder="https://..." required />
                 <TextField label="Document type" value={agreementForm.documentType} onChange={(value) => setAgreementForm((prev) => ({ ...prev, documentType: value }))} placeholder="NDA, Contract, License ..." />
                 <div className="md:col-span-2 flex justify-end">
-                  <button type="submit" className="px-6 py-3 rounded-xl bg-sky-600 text-white font-semibold">Save agreement</button>
+                  <button type="submit" className="px-6 py-3 rounded-xl bg-sky-600 dark:bg-sky-500 text-white font-semibold hover:bg-sky-700 dark:hover:bg-sky-600">Save agreement</button>
                 </div>
               </form>
             </div>
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-900">Documents</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Documents</h3>
               {agreements.length === 0 ? (
                 <EmptyState message="No agreements saved yet." />
               ) : (
                 agreements.map((agreement) => (
-                  <div key={agreement._id} className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4 text-sm">
+                  <div key={agreement._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4 text-sm">
                     <div>
-                      <p className="font-semibold text-slate-900">{agreement.title}</p>
-                      <p className="text-xs text-slate-500">{agreement.space?.name}</p>
+                      <p className="font-semibold text-slate-900 dark:text-white">{agreement.title}</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400">{agreement.space?.name}</p>
                     </div>
-                    <div className="text-slate-500 text-xs flex-1">
+                    <div className="text-slate-500 dark:text-gray-400 text-xs flex-1">
                       {agreement.documentType && <p>Type: {agreement.documentType}</p>}
                     </div>
                     <div className="text-right">
-                      <a href={agreement.documentUrl} target="_blank" rel="noreferrer" className="text-sky-600 font-semibold text-sm">
+                      <a href={agreement.documentUrl} target="_blank" rel="noreferrer" className="text-sky-600 dark:text-sky-400 font-semibold text-sm hover:text-sky-700 dark:hover:text-sky-300">
                         View document
                       </a>
                     </div>
@@ -602,7 +647,7 @@ export default function WorkspaceOwnerDashboard() {
 
         {activeTab === 'reviews' && (
           <section className="space-y-6">
-            <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+            <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <SectionHeader title="Add review" helper="Record client feedback after visits" />
               <form onSubmit={handleReviewSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <SelectField label="Workspace" value={reviewForm.space} onChange={(value) => setReviewForm((prev) => ({ ...prev, space: value }))} options={ownerSpacesForSelect} required />
@@ -612,28 +657,28 @@ export default function WorkspaceOwnerDashboard() {
                   <TextArea label="Comment" value={reviewForm.comment} onChange={(value) => setReviewForm((prev) => ({ ...prev, comment: value }))} rows={3} required />
                 </div>
                 <div className="md:col-span-2 flex justify-end">
-                  <button type="submit" className="px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold">Save review</button>
+                  <button type="submit" className="px-6 py-3 rounded-xl bg-indigo-600 dark:bg-indigo-500 text-white font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600">Save review</button>
                 </div>
               </form>
             </div>
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-900">Guest feedback</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Guest feedback</h3>
               {reviews.length === 0 ? (
                 <EmptyState message="No reviews captured yet." />
               ) : (
                 reviews.map((review) => (
-                  <div key={review._id} className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm text-sm">
+                  <div key={review._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm text-sm">
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="font-semibold text-slate-900">{review.space?.name}</p>
-                        <p className="text-xs text-slate-500">{review.reviewerName || 'Guest'}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white">{review.space?.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-gray-400">{review.reviewerName || 'Guest'}</p>
                       </div>
-                      <p className="text-lg font-bold text-amber-500">{review.rating} ⭐</p>
+                      <p className="text-lg font-bold text-amber-500 dark:text-amber-400">{review.rating} ⭐</p>
                     </div>
-                    <p className="text-slate-600 mt-3">{review.comment}</p>
-                    <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                    <p className="text-slate-600 dark:text-gray-300 mt-3">{review.comment}</p>
+                    <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-gray-400">
                       <span>Status: {review.status}</span>
-                      <button onClick={() => toggleReviewStatus(review)} className="text-sky-600 font-semibold">
+                      <button onClick={() => toggleReviewStatus(review)} className="text-sky-600 dark:text-sky-400 font-semibold hover:text-sky-700 dark:hover:text-sky-300">
                         {review.status === 'published' ? 'Hide review' : 'Publish review'}
                       </button>
                     </div>
@@ -646,14 +691,14 @@ export default function WorkspaceOwnerDashboard() {
 
         {activeTab === 'support' && (
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
+            <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <SectionHeader title="Contact WorkNest support" helper="We usually reply within a business day" />
               <form onSubmit={handleSupportSubmit} className="space-y-4 mt-4">
                 <TextField label="Subject" value={supportForm.subject} onChange={(value) => setSupportForm((prev) => ({ ...prev, subject: value }))} required />
                 <div>
-                  <label className="text-sm font-medium text-slate-600">Priority</label>
+                  <label className="text-sm font-medium text-slate-600 dark:text-gray-300">Priority</label>
                   <select
-                    className="mt-2 w-full rounded-xl border-2 border-slate-200 px-4 py-3 focus:outline-none focus:border-sky-400"
+                    className="mt-2 w-full rounded-xl border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 focus:outline-none focus:border-sky-400 dark:focus:border-sky-500"
                     value={supportForm.priority}
                     onChange={(e) => setSupportForm((prev) => ({ ...prev, priority: e.target.value }))}
                   >
@@ -669,20 +714,20 @@ export default function WorkspaceOwnerDashboard() {
               </form>
             </div>
             <div className="space-y-6">
-              <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
-                <p className="text-sm font-semibold text-slate-500 uppercase">Profile</p>
-                <h3 className="text-xl font-bold text-slate-900">Keep your contact details fresh</h3>
-                <p className="text-sm text-slate-600 mt-2">Support and payout teams rely on your profile to reach you.</p>
-                <Link to="/profile" className="inline-flex items-center mt-4 text-sky-600 font-semibold">
+              <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                <p className="text-sm font-semibold text-slate-500 dark:text-gray-400 uppercase">Profile</p>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Keep your contact details fresh</h3>
+                <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">Support and payout teams rely on your profile to reach you.</p>
+                <Link to="/profile" className="inline-flex items-center mt-4 text-sky-600 dark:text-sky-400 font-semibold hover:text-sky-700 dark:hover:text-sky-300">
                   Update profile
                   <span className="ml-2">→</span>
                 </Link>
               </div>
-              <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
-                <p className="text-sm font-semibold text-slate-500 uppercase">Need immediate help?</p>
-                <h3 className="text-xl font-bold text-slate-900">Email support@worknest.com</h3>
-                <p className="text-sm text-slate-600 mt-2">We’re available Monday–Saturday, 9am–8pm IST.</p>
-                <a href="mailto:support@worknest.com" className="inline-flex items-center mt-4 text-sky-600 font-semibold">
+              <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                <p className="text-sm font-semibold text-slate-500 dark:text-gray-400 uppercase">Need immediate help?</p>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Email support@worknest.com</h3>
+                <p className="text-sm text-slate-600 dark:text-gray-300 mt-2">We're available Monday–Saturday, 9am–8pm IST.</p>
+                <a href="mailto:support@worknest.com" className="inline-flex items-center mt-4 text-sky-600 dark:text-sky-400 font-semibold hover:text-sky-700 dark:hover:text-sky-300">
                   support@worknest.com
                 </a>
               </div>
@@ -697,10 +742,10 @@ export default function WorkspaceOwnerDashboard() {
 
 function StatCard({ label, value, helper }) {
   return (
-    <div className="p-6 rounded-2xl border border-slate-100 bg-white shadow-sm">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
-      {helper && <p className="text-xs text-slate-500 mt-1">{helper}</p>}
+    <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+      <p className="text-sm text-slate-500 dark:text-gray-400">{label}</p>
+      <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{value}</p>
+      {helper && <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">{helper}</p>}
     </div>
   );
 }
@@ -708,20 +753,20 @@ function StatCard({ label, value, helper }) {
 function SectionHeader({ title, helper }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-      <h2 className="text-xl font-bold text-slate-900">{title}</h2>
-      {helper && <p className="text-xs text-slate-500">{helper}</p>}
+      <h2 className="text-xl font-bold text-slate-900 dark:text-white">{title}</h2>
+      {helper && <p className="text-xs text-slate-500 dark:text-gray-400">{helper}</p>}
     </div>
   );
 }
 
 function EmptyState({ message }) {
-  return <div className="text-center py-14 rounded-2xl border border-dashed border-slate-200 text-slate-500 text-sm">{message}</div>;
+  return <div className="text-center py-14 rounded-2xl border border-dashed border-slate-200 dark:border-gray-600 text-slate-500 dark:text-gray-400 text-sm">{message}</div>;
 }
 
 function TextField({ label, value, onChange, type = 'text', placeholder, required, min, max }) {
   return (
     <div>
-      <label className="text-sm font-medium text-slate-600">{label}</label>
+      <label className="text-sm font-medium text-slate-600 dark:text-gray-300">{label}</label>
       <input
         type={type}
         value={value}
@@ -730,7 +775,7 @@ function TextField({ label, value, onChange, type = 'text', placeholder, require
         placeholder={placeholder}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full rounded-xl border-2 border-slate-200 px-4 py-3 focus:outline-none focus:border-sky-400"
+        className="mt-2 w-full rounded-xl border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 focus:outline-none focus:border-sky-400 dark:focus:border-sky-500"
       />
     </div>
   );
@@ -739,13 +784,13 @@ function TextField({ label, value, onChange, type = 'text', placeholder, require
 function TextArea({ label, value, onChange, rows = 3, required }) {
   return (
     <div>
-      <label className="text-sm font-medium text-slate-600">{label}</label>
+      <label className="text-sm font-medium text-slate-600 dark:text-gray-300">{label}</label>
       <textarea
         rows={rows}
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full rounded-xl border-2 border-slate-200 px-4 py-3 focus:outline-none focus:border-sky-400"
+        className="mt-2 w-full rounded-xl border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 focus:outline-none focus:border-sky-400 dark:focus:border-sky-500"
       />
     </div>
   );
@@ -754,12 +799,12 @@ function TextArea({ label, value, onChange, rows = 3, required }) {
 function SelectField({ label, value, onChange, options, required }) {
   return (
     <div>
-      <label className="text-sm font-medium text-slate-600">{label}</label>
+      <label className="text-sm font-medium text-slate-600 dark:text-gray-300">{label}</label>
       <select
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full rounded-xl border-2 border-slate-200 px-4 py-3 focus:outline-none focus:border-sky-400"
+        className="mt-2 w-full rounded-xl border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-3 focus:outline-none focus:border-sky-400 dark:focus:border-sky-500"
       >
         <option value="">Select...</option>
         {options.map((option) => (
@@ -771,4 +816,3 @@ function SelectField({ label, value, onChange, options, required }) {
     </div>
   );
 }
-

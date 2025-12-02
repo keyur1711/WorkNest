@@ -8,6 +8,8 @@ import { addToFavorites, removeFromFavorites, getFavorites } from '../services/f
 import { createBooking } from '../services/bookingService';
 import LoginModal from '../components/LoginModal';
 import { getSpace } from '../services/spaceService';
+import { getSpaceReviewCount } from '../services/reviewService';
+import { createPaymentOrder, verifyPayment } from '../services/paymentService';
 
 export default function Details() {
   const { id } = useParams();
@@ -16,6 +18,7 @@ export default function Details() {
   const [space, setSpace] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reviewCount, setReviewCount] = useState(0);
 
   const [isFav, setIsFav] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
@@ -37,6 +40,15 @@ export default function Details() {
         const data = await getSpace(id);
         setSpace(data);
         setBookingData(prev => ({ ...prev, type: data.type || 'Hot Desk' }));
+        
+        // Load review count
+        try {
+          const count = await getSpaceReviewCount(id);
+          setReviewCount(count);
+        } catch (err) {
+          console.error('Error loading review count:', err);
+          setReviewCount(0);
+        }
       } catch (err) {
         console.error('Error loading space:', err);
         setError(err.message || 'Failed to load space');
@@ -84,6 +96,20 @@ export default function Details() {
     }
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleBookNow = async () => {
     if (!user) {
       setLoginModalOpen(true);
@@ -100,18 +126,89 @@ export default function Details() {
 
     try {
       const spaceId = space._id || space.id;
-      await createBooking({
+      
+      // Step 1: Create booking
+      const bookingResponse = await createBooking({
         spaceId,
         type: bookingData.type,
         bookingDate: bookingData.bookingDate
       });
-      setBookingSuccess(true);
-      setTimeout(() => {
-        navigate('/bookings');
-      }, 2000);
+
+      const booking = bookingResponse.booking;
+      const bookingId = booking._id || booking.id;
+
+      // Step 2: Load Razorpay script
+      const razorpayLoaded = await loadRazorpayScript();
+      if (!razorpayLoaded) {
+        setBookingError('Failed to load payment gateway. Please try again.');
+        setIsBooking(false);
+        return;
+      }
+
+      // Step 3: Create payment order
+      const orderResponse = await createPaymentOrder(bookingId);
+
+      // Step 4: Open Razorpay checkout
+      const options = {
+        key: orderResponse.keyId,
+        amount: orderResponse.amount,
+        currency: orderResponse.currency,
+        name: 'WorkNest',
+        description: `Booking for ${space.name} - ${bookingData.type}`,
+        order_id: orderResponse.orderId,
+        handler: async function (response) {
+          try {
+            setIsBooking(true);
+            // Verify payment
+            await verifyPayment({
+              bookingId,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+            
+            setBookingSuccess(true);
+            setTimeout(() => {
+              navigate('/bookings');
+            }, 2000);
+          } catch (err) {
+            console.error('Payment verification error:', err);
+            setBookingError(err.message || 'Payment verification failed. Please contact support.');
+            setIsBooking(false);
+          }
+        },
+        prefill: {
+          name: user.fullName || '',
+          email: user.email || '',
+          contact: user.phone || ''
+        },
+        theme: {
+          color: '#2563eb'
+        },
+        modal: {
+          ondismiss: function() {
+            setIsBooking(false);
+            setBookingError('Payment cancelled. Booking is created but not confirmed.');
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+      setIsBooking(false); // Set to false as Razorpay modal is open
+      
     } catch (err) {
-      setBookingError(err.message || 'Failed to create booking. Please try again.');
-    } finally {
+      // Extract error message from API response
+      let errorMessage = 'Failed to create booking. Please try again.';
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (err.payload?.message) {
+        errorMessage = err.payload.message;
+      } else if (err.payload?.errors && Array.isArray(err.payload.errors)) {
+        errorMessage = err.payload.errors.map(e => e.msg || e.message || e).join(', ');
+      }
+      setBookingError(errorMessage);
+      console.error('Booking error details:', err);
       setIsBooking(false);
     }
   };
@@ -175,16 +272,47 @@ export default function Details() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <div className="grid grid-cols-12 gap-3">
-                <div className="col-span-12 rounded-2xl aspect-video bg-gradient-to-br from-brand-100 via-brand-200 to-brand-300 shadow-xl overflow-hidden group cursor-pointer">
-                  <div className="w-full h-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center">
-                    <svg className="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="col-span-4 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 hover:opacity-80 transition cursor-pointer" />
-                <div className="col-span-4 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 hover:opacity-80 transition cursor-pointer" />
-                <div className="col-span-4 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 hover:opacity-80 transition cursor-pointer" />
+                {space.images && space.images.length > 0 ? (
+                  <>
+                    <div className="col-span-12 rounded-2xl aspect-video shadow-xl overflow-hidden group cursor-pointer">
+                      <img 
+                        src={space.images[0]} 
+                        alt={space.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center"><svg class="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>';
+                        }}
+                      />
+                    </div>
+                    {space.images.slice(1, 4).map((img, idx) => (
+                      <div key={idx} className="col-span-4 h-24 rounded-xl overflow-hidden hover:opacity-80 transition cursor-pointer">
+                        <img 
+                          src={img} 
+                          alt={`${space.name} ${idx + 2}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.className = 'col-span-4 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 hover:opacity-80 transition cursor-pointer';
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <div className="col-span-12 rounded-2xl aspect-video bg-gradient-to-br from-brand-100 via-brand-200 to-brand-300 shadow-xl overflow-hidden group cursor-pointer">
+                      <div className="w-full h-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center">
+                        <svg className="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="col-span-4 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 hover:opacity-80 transition cursor-pointer" />
+                    <div className="col-span-4 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 hover:opacity-80 transition cursor-pointer" />
+                    <div className="col-span-4 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 hover:opacity-80 transition cursor-pointer" />
+                  </>
+                )}
               </div>
 
               <div className="mt-6 flex items-start justify-between gap-4">
@@ -202,8 +330,8 @@ export default function Details() {
                       <svg className="w-4 h-4 text-amber-500 fill-current" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{space.rating}</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">(24 reviews)</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{space.rating || 0}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">({reviewCount} review{reviewCount !== 1 ? 's' : ''})</span>
                     </div>
                   </div>
                 </div>
@@ -255,7 +383,7 @@ export default function Details() {
                     </div>
                     <div className="text-gray-900 dark:text-white font-semibold text-lg">About</div>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">Premium workspace with fast Wi‑Fi, comfortable seating, and meeting facilities. Walkable to transit and cafes. Perfect for teams looking for a professional yet flexible environment.</p>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{space.description || 'Premium workspace with fast Wi‑Fi, comfortable seating, and meeting facilities. Walkable to transit and cafes. Perfect for teams looking for a professional yet flexible environment.'}</p>
                 </div>
               </div>
             </div>

@@ -13,27 +13,44 @@ export default function Dashboard() {
   const [tourBookings, setTourBookings] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
+        setError(null);
         const [bookingsData, toursData, favoritesData] = await Promise.all([
-          getMyBookings().catch(() => ({ bookings: [] })),
-          getMyTourBookings().catch(() => ({ tourBookings: [] })),
-          getFavorites().catch(() => ({ favorites: [] }))
+          getMyBookings().catch((err) => {
+            console.error('Error loading bookings:', err);
+            return { bookings: [] };
+          }),
+          getMyTourBookings().catch((err) => {
+            console.error('Error loading tour bookings:', err);
+            return { tourBookings: [] };
+          }),
+          getFavorites().catch((err) => {
+            console.error('Error loading favorites:', err);
+            return { favorites: [] };
+          })
         ]);
         setBookings(bookingsData.bookings || []);
         setTourBookings(toursData.tourBookings || []);
         setFavorites(favoritesData.favorites || []);
       } catch (err) {
         console.error('Error loading dashboard data:', err);
+        setError('Failed to load dashboard data. Please try refreshing the page.');
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, []);
+  }, [user]);
 
   const upcomingBookings = bookings.filter(b =>
     b.status !== 'cancelled' &&
@@ -68,6 +85,11 @@ export default function Dashboard() {
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 md:px-12 lg:px-16 py-10">
         <div className="mb-8">
+          {error && (
+            <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-900/20 dark:border-rose-800 px-4 py-3 text-rose-600 dark:text-rose-400">
+              {error}
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
@@ -91,21 +113,21 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Bookings</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Total Bookings</div>
             <div className="text-3xl font-bold text-gray-900 dark:text-white">{bookings.length}</div>
             <Link to="/bookings" className="text-sm text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 font-medium mt-2 inline-block">
               View all →
             </Link>
           </div>
           <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Saved Spaces</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Saved Spaces</div>
             <div className="text-3xl font-bold text-gray-900 dark:text-white">{favorites.length}</div>
             <Link to="/favorites" className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium mt-2 inline-block">
               View favorites →
             </Link>
           </div>
           <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Tour Requests</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Tour Requests</div>
             <div className="text-3xl font-bold text-gray-900 dark:text-white">{tourBookings.length}</div>
             <div className="text-sm text-amber-600 dark:text-amber-400 font-medium mt-2">Scheduled tours</div>
           </div>
@@ -139,8 +161,8 @@ export default function Dashboard() {
                         <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">₹{booking.totalAmount || booking.pricePerDay}</p>
                       </div>
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                          booking.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                            'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                        booking.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                          'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                         }`}>
                         {booking.status}
                       </span>
@@ -173,8 +195,8 @@ export default function Dashboard() {
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{tour.spaceLocation || tour.space?.locationText}</p>
                       </div>
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${tour.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                          tour.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                            'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                        tour.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                          'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                         }`}>
                         {tour.status}
                       </span>

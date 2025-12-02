@@ -30,7 +30,11 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: function(date) {
-          return date >= new Date().setHours(0, 0, 0, 0);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const bookingDate = new Date(date);
+          bookingDate.setHours(0, 0, 0, 0);
+          return bookingDate >= today;
         },
         message: 'Booking date cannot be in the past'
       }
@@ -52,8 +56,17 @@ const bookingSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'paid', 'refunded'],
+      enum: ['pending', 'paid', 'refunded', 'failed'],
       default: 'pending'
+    },
+    razorpayOrderId: {
+      type: String
+    },
+    razorpayPaymentId: {
+      type: String
+    },
+    razorpaySignature: {
+      type: String
     },
     agreementUrl: {
       type: String

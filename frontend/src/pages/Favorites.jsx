@@ -98,9 +98,14 @@ export default function Favorites() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {favorites.map((space) => (
-                <SpaceCard key={space._id || space.id} space={space} />
-              ))}
+              {favorites.map((fav) => {
+                // Handle both direct space objects and nested space objects
+                const space = fav.space || fav;
+                const spaceId = space._id || space.id;
+                return (
+                  <SpaceCard key={spaceId} space={space} />
+                );
+              })}
             </div>
           )}
         </section>
