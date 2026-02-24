@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const reviewSchema = new mongoose.Schema(
   {
     space: {
@@ -50,11 +49,6 @@ const reviewSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
 reviewSchema.index({ space: 1, rating: -1 });
-
 const Review = mongoose.model('Review', reviewSchema);
-
 module.exports = Review;
-
-

@@ -3,13 +3,17 @@ import { Link } from 'react-router-dom';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import { getMyBookings, cancelBooking } from '../services/bookingService';
-
+import BookingReviewModal from '../components/BookingReviewModal';
+import { submitBookingReview } from '../services/reviewService';
 export default function BookingHistory() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cancellingId, setCancellingId] = useState(null);
-
+  const [reviewModalBooking, setReviewModalBooking] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+  const [reviewError, setReviewError] = useState(null);
+  const [submittingReview, setSubmittingReview] = useState(false);
   useEffect(() => {
     const loadBookings = async () => {
       try {
@@ -24,23 +28,18 @@ export default function BookingHistory() {
     };
     loadBookings();
   }, []);
-
   const handleCancel = async (bookingId) => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
-
     try {
       setCancellingId(bookingId);
       await cancelBooking(bookingId);
-      setBookings(prev => prev.map(b =>
-        b._id === bookingId ? { ...b, status: 'cancelled' } : b
-      ));
+      setBookings(prev => prev.filter(b => b._id !== bookingId));
     } catch (err) {
       alert(err.message || 'Failed to cancel booking');
     } finally {
       setCancellingId(null);
     }
   };
-
   const getStatusColor = (status) => {
     switch (status) {
       case 'confirmed': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
@@ -50,7 +49,57 @@ export default function BookingHistory() {
       default: return 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
     }
   };
-
+  const canReview = (booking) => {
+    const statusAllowed = ['confirmed', 'completed'].includes(booking.status);
+    const isPaid = booking.paymentStatus === 'paid';
+    return statusAllowed && isPaid && !booking.userRating;
+  };
+  const renderRatingStars = (rating) => {
+    if (!rating) return null;
+    return (
+      <div className="flex items-center gap-1 text-amber-400">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <span key={index} className={index < rating ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600'}>
+            ★
+          </span>
+        ))}
+        <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">{rating}/5</span>
+      </div>
+    );
+  };
+  const openReviewModal = (booking) => {
+    setReviewModalBooking(booking);
+    setReviewForm({
+      rating: booking.userRating || 5,
+      comment: booking.userReviewComment || ''
+    });
+    setReviewError(null);
+  };
+  const handleSubmitReview = async () => {
+    if (!reviewModalBooking) return;
+    try {
+      setSubmittingReview(true);
+      setReviewError(null);
+      await submitBookingReview({
+        bookingId: reviewModalBooking._id,
+        rating: Number(reviewForm.rating),
+        comment: reviewForm.comment == null ? '' : String(reviewForm.comment)
+      });
+      setBookings(prev => prev.map(b => (
+        b._id === reviewModalBooking._id
+          ? { ...b, userRating: reviewForm.rating, userReviewComment: reviewForm.comment }
+          : b
+      )));
+      setReviewModalBooking(null);
+    } catch (err) {
+      const payload = err.payload || {};
+      const validationMsg = payload.errors?.[0]?.msg || payload.errors?.[0]?.message;
+      const detail = payload.detail || payload.message || err.message;
+      setReviewError(validationMsg || detail || 'Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -68,7 +117,6 @@ export default function BookingHistory() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
@@ -77,13 +125,11 @@ export default function BookingHistory() {
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Booking History</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">View and manage your workspace bookings</p>
         </div>
-
         {error && (
           <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-900/20 dark:border-rose-800 px-4 py-3 text-rose-600 dark:text-rose-400">
             {error}
           </div>
         )}
-
         {bookings.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-20 h-20 mx-auto rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
@@ -126,7 +172,27 @@ export default function BookingHistory() {
                       <span className="font-semibold text-gray-900 dark:text-white">₹{booking.totalAmount || booking.pricePerDay}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-start gap-3 md:items-end">
+                      {booking.userRating && (
+                        <div className="flex flex-col items-start md:items-end gap-1">
+                          {renderRatingStars(booking.userRating)}
+                          {booking.userReviewComment && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 max-w-sm text-left md:text-right">
+                              “{booking.userReviewComment}”
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      {canReview(booking) && (
+                        <button
+                          onClick={() => openReviewModal(booking)}
+                          className="px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-500 text-amber-700 dark:text-amber-300 font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition"
+                        >
+                          Rate experience
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
                     {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                       <button
                         onClick={() => handleCancel(booking._id)}
@@ -149,8 +215,17 @@ export default function BookingHistory() {
           </div>
         )}
       </main>
+      <BookingReviewModal
+        booking={reviewModalBooking}
+        isOpen={!!reviewModalBooking}
+        reviewForm={reviewForm}
+        onChange={setReviewForm}
+        onSubmit={handleSubmitReview}
+        onClose={() => setReviewModalBooking(null)}
+        submitting={submittingReview}
+        error={reviewError}
+      />
       <Footer />
     </div>
   );
 }
-

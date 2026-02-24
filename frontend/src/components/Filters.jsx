@@ -40,4 +40,3 @@ export default function Filters({ cities, types, values, onChange }) {
     </div>
   );
 }
-

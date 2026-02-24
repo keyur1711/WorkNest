@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const userSchema = new mongoose.Schema(
   {
     fullName: {
@@ -21,7 +20,7 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: String,
       trim: true,
-      match: [/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/, 'Please enter a valid phone number']
+      default: ''
     },
     agreeToTerms: {
       type: Boolean,
@@ -37,25 +36,38 @@ const userSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Space'
       }
-    ]
+    ],
+    subscriptionPlan: {
+      type: String,
+      enum: ['none', 'user_basic', 'user_pro', 'owner_basic', 'owner_pro'],
+      default: 'none'
+    },
+    subscriptionStatus: {
+      type: String,
+      enum: ['inactive', 'active'],
+      default: 'inactive'
+    },
+    subscriptionForRole: {
+      type: String,
+      enum: ['user', 'workspace_owner', null],
+      default: null
+    },
+    subscriptionExpiresAt: {
+      type: Date,
+      default: null
+    }
   },
   {
     timestamps: true
   }
 );
-
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   delete obj.__v;
   return obj;
 };
-
-// Indexes
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
-
 const User = mongoose.model('User', userSchema);
-
 module.exports = User;
-

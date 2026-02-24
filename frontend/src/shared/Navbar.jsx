@@ -2,13 +2,12 @@ import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import ThemeToggle from '../components/ThemeToggle';
-
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
-
+  const hideExplorePricing = user?.role === 'admin' || user?.role === 'workspace_owner';
   const userInitials = useMemo(() => {
     if (!user?.fullName) return 'WN';
     const parts = user.fullName.split(' ').filter(Boolean);
@@ -16,18 +15,16 @@ export default function Navbar() {
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }, [user]);
-
   const handleLogout = () => {
     logout();
     setIsUserDropdownOpen(false);
     navigate('/');
   };
-
   return (
     <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+          {}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
               <span className="text-white font-bold text-lg">W</span>
@@ -37,15 +34,18 @@ export default function Navbar() {
               <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1">Premium Workspaces</div>
             </div>
           </Link>
-
-          {/* Desktop Navigation */}
+          {}
           <nav className="hidden lg:flex items-center gap-1">
-            <Link to="/search" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              Explore
-            </Link>
-            <Link to="/pricing" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              Pricing
-            </Link>
+            {!hideExplorePricing && (
+              <>
+                <Link to="/search" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  Explore
+                </Link>
+                <Link to="/pricing" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  Pricing
+                </Link>
+              </>
+            )}
             <Link to="/about" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
               About
             </Link>
@@ -53,8 +53,7 @@ export default function Navbar() {
               Contact
             </Link>
           </nav>
-
-          {/* Right Side Actions */}
+          {}
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {isAuthenticated ? (
@@ -68,8 +67,7 @@ export default function Navbar() {
                   </svg>
                   Favorites
                 </Link>
-
-                {/* User Dropdown */}
+                {}
                 <div className="relative">
                   <button
                     onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
@@ -82,7 +80,6 @@ export default function Navbar() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-
                   {isUserDropdownOpen && (
                     <>
                       <div
@@ -113,6 +110,16 @@ export default function Navbar() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                             Bookings
+                          </Link>
+                          <Link
+                            to="/tours"
+                            onClick={() => setIsUserDropdownOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Tours
                           </Link>
                           <Link
                             to="/profile"
@@ -183,8 +190,7 @@ export default function Navbar() {
                 </Link>
               </>
             )}
-
-            {/* Mobile Menu Button */}
+            {}
             <button
               className="lg:hidden p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -199,13 +205,16 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
+        {}
         {isMenuOpen && (
           <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 py-4">
             <nav className="flex flex-col gap-2">
-              <Link to="/search" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Explore</Link>
-              <Link to="/pricing" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Pricing</Link>
+              {!hideExplorePricing && (
+                <>
+                  <Link to="/search" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Explore</Link>
+                  <Link to="/pricing" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Pricing</Link>
+                </>
+              )}
               <Link to="/about" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">About</Link>
               <Link to="/contact" className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">Contact</Link>
               {isAuthenticated && (

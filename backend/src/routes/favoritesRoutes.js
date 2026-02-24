@@ -2,10 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const Space = require('../models/Space');
 const { auth } = require('../middleware/auth');
-
 const router = express.Router();
-
-// Get user's favorites
 router.get('/', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate('favorites');
@@ -15,23 +12,18 @@ router.get('/', auth, async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
-
-// Add to favorites
 router.post('/:spaceId', auth, async (req, res) => {
   try {
     const space = await Space.findById(req.params.spaceId);
     if (!space) {
       return res.status(404).json({ message: 'Space not found' });
     }
-
     const user = await User.findById(req.user.id);
     if (user.favorites.includes(req.params.spaceId)) {
       return res.json({ message: 'Already in favorites', favorites: user.favorites });
     }
-
     user.favorites.push(req.params.spaceId);
     await user.save();
-
     const updatedUser = await User.findById(req.user.id).populate('favorites');
     return res.json({ favorites: updatedUser.favorites });
   } catch (error) {
@@ -39,8 +31,6 @@ router.post('/:spaceId', auth, async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
-
-// Remove from favorites
 router.delete('/:spaceId', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -48,7 +38,6 @@ router.delete('/:spaceId', auth, async (req, res) => {
       (fav) => fav.toString() !== req.params.spaceId
     );
     await user.save();
-
     const updatedUser = await User.findById(req.user.id).populate('favorites');
     return res.json({ favorites: updatedUser.favorites });
   } catch (error) {
@@ -56,6 +45,4 @@ router.delete('/:spaceId', auth, async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
-
 module.exports = router;
-

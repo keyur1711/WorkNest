@@ -2,38 +2,30 @@ import { Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/authService';
-
 export default function WorkspaceOwnerRoute({ children }) {
   const { isAuthenticated, user, token, refreshUser } = useAuth();
   const [isChecking, setIsChecking] = useState(true);
   const [currentUser, setCurrentUser] = useState(user);
-
-  // Refresh user data from backend to ensure we have latest role
   useEffect(() => {
     const checkUserRole = async () => {
       if (isAuthenticated && token) {
         try {
-          // Try using refreshUser from context first
           if (refreshUser) {
             const refreshedUser = await refreshUser();
             setCurrentUser(refreshedUser);
           } else {
-            // Fallback to direct API call
             const response = await authService.getUserProfile();
             setCurrentUser(response.user);
           }
         } catch (error) {
           console.error('Failed to fetch user profile:', error);
-          // If fetch fails, use the user from context
           setCurrentUser(user);
         }
       }
       setIsChecking(false);
     };
-
     checkUserRole();
   }, [isAuthenticated, token, user, refreshUser]);
-
   if (isChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -47,21 +39,13 @@ export default function WorkspaceOwnerRoute({ children }) {
       </div>
     );
   }
-
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-
-  // Use currentUser (from backend) or fallback to user (from context)
   const userRole = currentUser?.role || user?.role;
-  
-  // Check if role is workspace_owner (case-insensitive and trim whitespace)
   const normalizedRole = String(userRole || '').toLowerCase().trim();
-  
   if (normalizedRole !== 'workspace_owner') {
     return <Navigate to="/dashboard" replace />;
   }
-
   return children;
 }
-

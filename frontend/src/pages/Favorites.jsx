@@ -5,13 +5,11 @@ import Footer from '../shared/Footer';
 import SpaceCard from '../components/SpaceCard';
 import { getFavorites } from '../services/favoritesService';
 import { useAuth } from '../hooks/useAuth';
-
 export default function Favorites() {
   const { user } = useAuth();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const loadFavorites = async () => {
       if (!user) return;
@@ -26,13 +24,10 @@ export default function Favorites() {
         setLoading(false);
       }
     };
-
     loadFavorites();
   }, [user]);
-
   if (loading) {
     return (
-      // return (
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
@@ -48,12 +43,11 @@ export default function Favorites() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
       <main className="flex-1">
-        {/* Hero Section */}
+        {}
         <section className="relative overflow-hidden bg-gradient-to-b from-brand-50/40 via-white to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-900">
           <div className="w-full px-6 md:px-12 lg:px-16 pt-12 pb-8">
             <div className="flex items-center gap-3 mb-4">
@@ -76,7 +70,6 @@ export default function Favorites() {
             </div>
           </div>
         </section>
-
         <section className="w-full px-6 md:px-12 lg:px-16 py-8">
           {error && (
             <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-600">
@@ -99,7 +92,6 @@ export default function Favorites() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {favorites.map((fav) => {
-                // Handle both direct space objects and nested space objects
                 const space = fav.space || fav;
                 const spaceId = space._id || space.id;
                 return (

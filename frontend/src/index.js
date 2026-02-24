@@ -15,6 +15,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import BookingHistory from './pages/BookingHistory';
+import TourHistory from './pages/TourHistory';
 import AdminDashboard from './pages/AdminDashboard';
 import WorkspaceOwnerDashboard from './pages/WorkspaceOwnerDashboard';
 import reportWebVitals from './reportWebVitals';
@@ -23,7 +24,6 @@ import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import WorkspaceOwnerRoute from './components/WorkspaceOwnerRoute';
-
 const router = createBrowserRouter([
   { path: '/', element: <Home /> },
   {
@@ -109,6 +109,14 @@ const router = createBrowserRouter([
     )
   },
   {
+    path: '/tours',
+    element: (
+      <ProtectedRoute>
+        <TourHistory />
+      </ProtectedRoute>
+    )
+  },
+  {
     path: '/admin',
     element: (
       <AdminRoute>
@@ -125,7 +133,6 @@ const router = createBrowserRouter([
     )
   }
 ]);
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -136,8 +143,4 @@ root.render(
     </AuthProvider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

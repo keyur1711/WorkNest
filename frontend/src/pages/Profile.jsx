@@ -4,7 +4,6 @@ import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import { useAuth } from '../hooks/useAuth';
 import { getUserProfile, updateUserProfile } from '../services/authService';
-
 export default function Profile() {
   const { user, setUser } = useAuth();
   const [formData, setFormData] = useState({
@@ -16,7 +15,6 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-
   useEffect(() => {
     const loadProfile = async () => {
       if (!user) return;
@@ -38,20 +36,17 @@ export default function Profile() {
     };
     loadProfile();
   }, [user]);
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
     setError(null);
     setSuccess(false);
-
     try {
       const data = await updateUserProfile(formData);
       if (data.user) {
@@ -65,7 +60,6 @@ export default function Profile() {
       setIsSaving(false);
     }
   };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -83,7 +77,6 @@ export default function Profile() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
@@ -92,7 +85,6 @@ export default function Profile() {
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Profile Settings</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Manage your account information</p>
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 md:p-8">
@@ -107,7 +99,6 @@ export default function Profile() {
                     Profile updated successfully!
                   </div>
                 )}
-
                 <div>
                   <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Full Name</label>
                   <input
@@ -119,7 +110,6 @@ export default function Profile() {
                     className="w-full h-12 px-4 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400 dark:focus:border-sky-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Email Address</label>
                   <input
@@ -131,7 +121,6 @@ export default function Profile() {
                     className="w-full h-12 px-4 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400 dark:focus:border-sky-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-bold text-slate-700 dark:text-gray-300 mb-2">Phone Number</label>
                   <input
@@ -142,7 +131,6 @@ export default function Profile() {
                     className="w-full h-12 px-4 rounded-lg border-2 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-sky-400 dark:focus:border-sky-500"
                   />
                 </div>
-
                 <button
                   type="submit"
                   disabled={isSaving}
@@ -153,7 +141,6 @@ export default function Profile() {
               </form>
             </div>
           </div>
-
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 space-y-4">
               <h3 className="font-bold text-gray-900 dark:text-white">Quick Links</h3>
@@ -183,4 +170,3 @@ export default function Profile() {
     </div>
   );
 }
-

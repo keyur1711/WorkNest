@@ -8,11 +8,9 @@ import searchImage from '../images/infralist-com-kmIKEGO7Vl4-unsplash.jpg';
 import { getSpaces, getFilters } from '../services/spaceService';
 import { getFavorites } from '../services/favoritesService';
 import { useAuth } from '../hooks/useAuth';
-
 function useFavorites() {
   const [fav, setFav] = useState([]);
   const { user } = useAuth();
-
   useEffect(() => {
     const loadFavorites = async () => {
       if (!user) {
@@ -30,11 +28,9 @@ function useFavorites() {
     };
     loadFavorites();
   }, [user]);
-
   const toggle = (id) => setFav((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   return { favorites: fav, toggle };
 }
-
 export default function Search() {
   const [filterValues, setFilterValues] = useState({ city: '', type: '', minPrice: '', maxPrice: '' });
   const { favorites, toggle } = useFavorites();
@@ -50,12 +46,9 @@ export default function Search() {
       return localStorage.getItem('wn:homeCity') || '';
     } catch { return ''; }
   });
-
   useEffect(() => {
     localStorage.setItem('wn:homeCity', homeCity);
   }, [homeCity]);
-
-  // Load filters (cities and types)
   useEffect(() => {
     const loadFilters = async () => {
       try {
@@ -68,30 +61,23 @@ export default function Search() {
     };
     loadFilters();
   }, []);
-
-  // Load spaces based on filters
   useEffect(() => {
     const loadSpaces = async () => {
       try {
         setLoading(true);
         setError(null);
-
         const filters = {
           city: filterValues.city || undefined,
           type: filterValues.type || undefined,
           minPrice: filterValues.minPrice || undefined,
           maxPrice: filterValues.maxPrice || undefined,
-          limit: 100 // Get more results
+          limit: 100
         };
-
-        // Map sortBy to backend sort format
         let sort = 'pricePerDay';
         if (sortBy === 'price-asc') sort = 'pricePerDay';
         else if (sortBy === 'price-desc') sort = '-pricePerDay';
         else if (sortBy === 'rating-desc') sort = '-rating';
-
         filters.sort = sort;
-
         const response = await getSpaces(filters);
         setSpaces(response.data || []);
       } catch (err) {
@@ -104,12 +90,11 @@ export default function Search() {
     };
     loadSpaces();
   }, [filterValues, sortBy]);
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1">
-        {/* Hero Section */}
+        {}
         <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">
             <img
@@ -119,13 +104,11 @@ export default function Search() {
             />
             <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/70 to-gray-900/60"></div>
           </div>
-
           <div className="relative z-10 max-w-full mx-auto px-6 md:px-12 lg:px-16 text-center text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
               Explore <span className="text-blue-400">Workspaces</span>
             </h1>
             <p className="text-xl text-gray-200 mb-8">Find the perfect space for your team</p>
-
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <div className="flex items-center gap-3 px-5 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg">
                 <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
@@ -133,7 +116,6 @@ export default function Search() {
                 </div>
                 <span className="font-semibold">results found</span>
               </div>
-
               <select
                 className="h-12 px-5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={homeCity}
@@ -144,7 +126,6 @@ export default function Search() {
                   <option key={c} value={c} className="text-gray-900">{c}</option>
                 ))}
               </select>
-
               <select
                 className="h-12 px-5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={sortBy}
@@ -155,7 +136,6 @@ export default function Search() {
                 <option value="price-desc" className="text-gray-900">Price: High to Low</option>
                 <option value="rating-desc" className="text-gray-900">Rating: High to Low</option>
               </select>
-
               <button
                 className={`h-12 px-6 rounded-lg font-semibold transition-all ${showMap
                   ? 'bg-blue-600 text-white'
@@ -168,14 +148,12 @@ export default function Search() {
             </div>
           </div>
         </section>
-
-        {/* Filters and Results */}
+        {}
         <section className="py-8">
           <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
               <Filters cities={cities} types={types} values={filterValues} onChange={setFilterValues} />
             </div>
-
             {loading ? (
               <div className="col-span-full py-16 text-center">
                 <svg className="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -29,3 +29,21 @@ export const getMyTourBookings = async () => {
   const response = await apiClient.get('/bookings/tour/my-tours');
   return response;
 };
+
+export const cancelTourBooking = async (tourId) => {
+  const response = await apiClient.patch(`/bookings/tour/${tourId}/cancel`);
+  return response;
+};
+
+export const getBookingAgreement = async (bookingId) => {
+  return apiClient.get(`/bookings/${bookingId}/agreement`);
+};
+
+export const acceptBookingAgreement = async (bookingId, payload) => {
+  return apiClient.post(`/bookings/${bookingId}/agreement/accept`, payload);
+};
+
+export const getUnavailableDatesForSpace = async (spaceId) => {
+  const response = await apiClient.get(`/bookings/space/${spaceId}/unavailable-dates`);
+  return response;
+};

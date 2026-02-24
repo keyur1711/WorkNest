@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import { useAuth } from '../hooks/useAuth';
-import workspaceImage from '../images/austin-distel-wawEfYdpkag-unsplash.jpg';
-
+import hotDeskImage from '../images/hot_desk1.jpeg';
 const ROLE_OPTIONS = [
   {
     value: 'user',
@@ -19,7 +18,6 @@ const ROLE_OPTIONS = [
     description: 'Publish listings, handle bookings, and grow your workspace business.'
   }
 ];
-
 export default function Login() {
   const [formData, setFormData] = useState({
     email: '',
@@ -42,25 +40,18 @@ export default function Login() {
         email: formData.email.trim(),
         password: formData.password
       };
-
       if (!isAdminLogin) {
         payload.role = formData.role;
       }
-
       const response = await login(payload);
       setIsLoading(false);
-
-      // Verify token was saved before redirecting
       const stored = localStorage.getItem('wn:auth');
       if (!stored) {
         setError('Failed to save authentication. Please try again.');
         return;
       }
-
       const userRole = response?.user?.role;
       console.log('Login successful, redirecting user with role:', userRole);
-
-      // Small delay to ensure auth context is updated
       setTimeout(() => {
         if (userRole === 'admin') {
           navigate('/admin', { replace: true });
@@ -75,7 +66,6 @@ export default function Login() {
       setError(err.message || 'Unable to sign in. Please try again.');
     }
   };
-
   const handleChange = (e) => {
     if (error) setError('');
     setFormData({
@@ -83,21 +73,19 @@ export default function Login() {
       [e.target.name]: e.target.value
     });
   };
-
   const handleRoleSelect = (roleValue) => {
     if (error) setError('');
     setFormData((prev) => ({ ...prev, role: roleValue }));
   };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1 flex items-center justify-center py-12 px-6">
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Left Side - Image */}
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {}
           <div className="hidden lg:block relative rounded-2xl overflow-hidden shadow-2xl">
             <img
-              src={workspaceImage}
+              src={hotDeskImage}
               alt="Workspace"
               className="w-full h-full object-cover"
             />
@@ -107,24 +95,21 @@ export default function Login() {
               <p className="text-blue-100">Sign in to access your workspace bookings and personalized recommendations.</p>
             </div>
           </div>
-
-          {/* Right Side - Login Form */}
+          {}
           <div className="flex items-center">
-            <div className="w-full max-w-md mx-auto">
+            <div className="w-full max-w-xl mx-auto">
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
                 <div className="mb-8">
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sign In</h1>
                   <p className="text-gray-600 dark:text-gray-300">Enter your credentials to access your account</p>
                 </div>
-
                 {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  <div className="mb-6 p-4 rounded-lg text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
                     {error}
                   </div>
                 )}
-
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Email */}
+                  {}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Email Address
@@ -139,8 +124,7 @@ export default function Login() {
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
-                  {/* Password */}
+                  {}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Password
@@ -158,7 +142,7 @@ export default function Login() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                       >
                         {showPassword ? (
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,8 +157,7 @@ export default function Login() {
                       </button>
                     </div>
                   </div>
-
-                  {/* Role Selection */}
+                  {}
                   {!isAdminLogin && (
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -205,8 +188,7 @@ export default function Login() {
                       </div>
                     </div>
                   )}
-
-                  {/* Admin Toggle */}
+                  {}
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -225,8 +207,7 @@ export default function Login() {
                       Forgot password?
                     </button>
                   </div>
-
-                  {/* Submit Button */}
+                  {}
                   <button
                     type="submit"
                     disabled={isLoading}
@@ -245,8 +226,7 @@ export default function Login() {
                     )}
                   </button>
                 </form>
-
-                {/* Sign Up Link */}
+                {}
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Don't have an account?{' '}

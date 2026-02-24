@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const tourBookingSchema = new mongoose.Schema(
   {
     user: {
@@ -62,14 +61,9 @@ const tourBookingSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
-// Indexes for better query performance
 tourBookingSchema.index({ user: 1, status: 1 });
 tourBookingSchema.index({ space: 1, tourDate: 1 });
 tourBookingSchema.index({ tourDate: 1 });
 tourBookingSchema.index({ status: 1 });
-
 const TourBooking = mongoose.model('TourBooking', tourBookingSchema);
-
 module.exports = TourBooking;
-

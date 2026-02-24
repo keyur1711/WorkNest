@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const agreementSchema = new mongoose.Schema(
   {
     owner: {
@@ -30,6 +29,15 @@ const agreementSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    version: {
+      type: String,
+      default: '1.0',
+      trim: true
+    },
+    content: {
+      type: String,
+      trim: true
+    },
     status: {
       type: String,
       enum: ['draft', 'sent', 'signed', 'archived'],
@@ -47,11 +55,6 @@ const agreementSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
 agreementSchema.index({ space: 1, status: 1 });
-
 const Agreement = mongoose.model('Agreement', agreementSchema);
-
 module.exports = Agreement;
-
-

@@ -5,8 +5,6 @@ import { useState, useEffect } from 'react';
 import TourModal from '../components/TourModal';
 import { Link } from 'react-router-dom';
 import { getSpaces, getFilters } from '../services/spaceService';
-
-// Import images
 import heroImage from '../images/Home_page.jpg';
 import workspace1 from '../images/austin-distel-wawEfYdpkag-unsplash.jpg';
 import workspace2 from '../images/infralist-com-kmIKEGO7Vl4-unsplash.jpg';
@@ -14,15 +12,12 @@ import workspace3 from '../images/uneebo-office-design-UgYT5nkXdK4-unsplash.jpg'
 import workspace4 from '../images/pawel-chu-ULh0i2txBCY-unsplash.jpg';
 import workspace5 from '../images/suryadhityas-NrDZJ9oWV_Y-unsplash.jpg';
 import workspace6 from '../images/running-a-successful-coworking-space-5aaa98c0bb414814ce745dc8.jpg';
-
 const workspaceImages = [workspace1, workspace2, workspace3, workspace4, workspace5, workspace6];
-
 export default function Home() {
   const [tourOpen, setTourOpen] = useState(false);
   const [spaces, setSpaces] = useState([]);
   const [types, setTypes] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -43,14 +38,13 @@ export default function Home() {
     };
     loadData();
   }, []);
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1">
-        {/* Hero Section - Full Width with Image */}
+        {}
         <section className="relative h-[90vh] min-h-[600px] flex items-center justify-center overflow-hidden">
-          {/* Background Image */}
+          {}
           <div className="absolute inset-0">
             <img
               src={heroImage}
@@ -59,23 +53,19 @@ export default function Home() {
             />
             <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/70 to-gray-900/60"></div>
           </div>
-
-          {/* Content */}
+          {}
           <div className="relative z-10 max-w-full mx-auto px-6 md:px-12 lg:px-16 text-center text-white">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full mb-6">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
               <span className="text-sm font-semibold uppercase tracking-wider">Premium Workspaces</span>
             </div>
-
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
               Find Your Perfect
               <span className="block text-blue-400">Workspace</span>
             </h1>
-
             <p className="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed">
               Discover and book premium coworking spaces that adapt to your needs, whenever and wherever you need them.
             </p>
-
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Link
                 to="/search"
@@ -90,8 +80,7 @@ export default function Home() {
                 Book a Tour
               </button>
             </div>
-
-            {/* Stats */}
+            {}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               {[
                 { value: '12+', label: 'Cities' },
@@ -106,16 +95,14 @@ export default function Home() {
               ))}
             </div>
           </div>
-
-          {/* Scroll Indicator */}
+          {}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
           </div>
         </section>
-
-        {/* Features Section */}
+        {}
         <section className="py-20 bg-white dark:bg-gray-800">
           <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16">
             <div className="text-center mb-16">
@@ -124,7 +111,6 @@ export default function Home() {
                 Everything you need to discover, compare, and book flexible workspaces with confidence.
               </p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
@@ -170,15 +156,13 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Workspace Types Gallery */}
+        {}
         <section className="py-20 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Explore by Type</h2>
               <p className="text-xl text-gray-600 dark:text-gray-300">Find the workspace solution that fits your needs</p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {loading ? (
                 <div className="col-span-full text-center py-8">
@@ -220,8 +204,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* Featured Spaces */}
+        {}
         <section className="py-20 bg-white dark:bg-gray-800">
           <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16">
             <div className="flex items-center justify-between mb-12">
@@ -239,7 +222,6 @@ export default function Home() {
                 </svg>
               </Link>
             </div>
-
             {loading ? (
               <div className="text-center py-12">
                 <svg className="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -261,8 +243,7 @@ export default function Home() {
             )}
           </div>
         </section>
-
-        {/* CTA Section */}
+        {}
         <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700">
           <div className="max-w-full mx-auto px-6 md:px-12 lg:px-16 text-center text-white">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Find Your Workspace?</h2>
@@ -285,7 +266,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
         <TourModal open={tourOpen} onClose={() => setTourOpen(false)} />
       </main>
       <Footer />

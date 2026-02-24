@@ -1,12 +1,8 @@
 import { apiClient } from '../utils/apiClient';
-
-// Get reviews for a specific space
 export const getSpaceReviews = async (spaceId) => {
   const response = await apiClient.get(`/spaces/${spaceId}/reviews`);
   return response;
 };
-
-// Get review count for a space
 export const getSpaceReviewCount = async (spaceId) => {
   try {
     const response = await getSpaceReviews(spaceId);
@@ -16,4 +12,11 @@ export const getSpaceReviewCount = async (spaceId) => {
     return 0;
   }
 };
-
+export const submitBookingReview = async ({ bookingId, rating, comment }) => {
+  const response = await apiClient.post('/reviews', { bookingId, rating, comment });
+  return response;
+};
+export const getBookingReview = async (bookingId) => {
+  const response = await apiClient.get(`/reviews/booking/${bookingId}`);
+  return response;
+};

@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const Space = require('../models/Space');
+const User = require('../models/User');
 const Booking = require('../models/Booking');
 const TourBooking = require('../models/TourBooking');
 const Agreement = require('../models/Agreement');
@@ -9,19 +10,15 @@ const Review = require('../models/Review');
 const SupportTicket = require('../models/SupportTicket');
 const { auth } = require('../middleware/auth');
 const { requireRole } = require('../middleware/roles');
-
 const router = express.Router();
-
 router.use(auth);
 router.use(requireRole(['workspace_owner', 'admin']));
-
 const getOwnerId = (req) => {
   if (req.user.role === 'admin' && req.query.ownerId && mongoose.isValidObjectId(req.query.ownerId)) {
     return req.query.ownerId;
   }
   return req.user.id;
 };
-
 const ensureSpaceOwnership = async (spaceId, ownerId, isAdmin) => {
   const space = await Space.findById(spaceId);
   if (!space) {
@@ -32,32 +29,31 @@ const ensureSpaceOwnership = async (spaceId, ownerId, isAdmin) => {
   }
   return { space };
 };
-
 const fetchOwnerSpaceIds = async (ownerId) => {
   const spaces = await Space.find({ ownerUser: ownerId }).select('_id');
   return spaces.map((space) => space._id);
 };
-
 router.get('/dashboard/overview', async (req, res) => {
   try {
     const ownerId = getOwnerId(req);
     const spaceIds = await fetchOwnerSpaceIds(ownerId);
-
     const [spaces, bookings, tourRequests] = await Promise.all([
       Space.find({ ownerUser: ownerId }).sort({ createdAt: -1 }),
       Booking.find({ space: { $in: spaceIds } }),
       TourBooking.find({ space: { $in: spaceIds } })
     ]);
-
     const totalRevenue = bookings
       .filter((booking) => booking.paymentStatus === 'paid')
       .reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
-
     const activeBookings = bookings.filter((booking) => ['pending', 'confirmed'].includes(booking.status));
     const bookingHistory = bookings.filter((booking) => ['completed', 'cancelled'].includes(booking.status));
-
     const earningsByMonth = await Booking.aggregate([
-      { $match: { space: { $in: spaceIds } } },
+      {
+        $match: {
+          space: { $in: spaceIds },
+          paymentStatus: 'paid'
+        }
+      },
       {
         $group: {
           _id: { $dateToString: { format: '%Y-%m', date: '$bookingDate' } },
@@ -66,9 +62,13 @@ router.get('/dashboard/overview', async (req, res) => {
       },
       { $sort: { '_id': 1 } }
     ]);
-
     const topSpaces = await Booking.aggregate([
-      { $match: { space: { $in: spaceIds } } },
+      {
+        $match: {
+          space: { $in: spaceIds },
+          paymentStatus: 'paid'
+        }
+      },
       {
         $group: {
           _id: '$space',
@@ -98,7 +98,6 @@ router.get('/dashboard/overview', async (req, res) => {
         }
       }
     ]);
-
     return res.json({
       spaces,
       stats: {
@@ -119,7 +118,6 @@ router.get('/dashboard/overview', async (req, res) => {
     return res.status(500).json({ message: 'Failed to load owner dashboard' });
   }
 });
-
 router.get('/spaces', async (req, res) => {
   try {
     const ownerId = getOwnerId(req);
@@ -130,7 +128,6 @@ router.get('/spaces', async (req, res) => {
     return res.status(500).json({ message: 'Failed to load spaces' });
   }
 });
-
 router.post(
   '/spaces',
   [
@@ -144,9 +141,30 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     try {
       const ownerId = getOwnerId(req);
+
+      if (req.user.role === 'workspace_owner') {
+        const ownerUser = await User.findById(ownerId).select(
+          'subscriptionPlan subscriptionStatus subscriptionForRole'
+        );
+
+        const hasActiveSubscription =
+          ownerUser &&
+          ownerUser.subscriptionStatus === 'active' &&
+          ownerUser.subscriptionForRole === 'workspace_owner';
+
+        if (!hasActiveSubscription) {
+          const existingCount = await Space.countDocuments({ ownerUser: ownerId });
+          if (existingCount >= 1) {
+            return res.status(403).json({
+              message:
+                'Free plan allows only one space. Please upgrade your workspace owner subscription to add more spaces.'
+            });
+          }
+        }
+      }
+
       const payload = {
         ...req.body,
         ownerUser: ownerId,
@@ -164,7 +182,6 @@ router.post(
     }
   }
 );
-
 router.patch(
   '/spaces/:id',
   [
@@ -182,7 +199,6 @@ router.patch(
         const status = error === 'Space not found' ? 404 : 403;
         return res.status(status).json({ message: error });
       }
-
       Object.assign(space, req.body);
       await space.save();
       return res.json({ space });
@@ -192,7 +208,6 @@ router.patch(
     }
   }
 );
-
 router.delete('/spaces/:id', async (req, res) => {
   try {
     const ownerId = getOwnerId(req);
@@ -201,7 +216,6 @@ router.delete('/spaces/:id', async (req, res) => {
       const status = error === 'Space not found' ? 404 : 403;
       return res.status(status).json({ message: error });
     }
-
     await space.deleteOne();
     return res.json({ message: 'Space deleted' });
   } catch (err) {
@@ -209,13 +223,11 @@ router.delete('/spaces/:id', async (req, res) => {
     return res.status(500).json({ message: 'Failed to delete space' });
   }
 });
-
 router.get('/bookings', async (req, res) => {
   try {
     const ownerId = getOwnerId(req);
     const scope = req.query.scope === 'history' ? 'history' : 'active';
     const statuses = scope === 'history' ? ['cancelled', 'completed'] : ['pending', 'confirmed'];
-
     const spaceIds = await fetchOwnerSpaceIds(ownerId);
     const bookings = await Booking.find({
       space: { $in: spaceIds },
@@ -224,33 +236,95 @@ router.get('/bookings', async (req, res) => {
       .sort({ bookingDate: -1 })
       .populate('space', 'name city pricePerDay images')
       .populate('user', 'fullName email phone');
-
     return res.json({ bookings });
   } catch (error) {
     console.error('Owner bookings error:', error);
     return res.status(500).json({ message: 'Failed to load bookings' });
   }
 });
-
+router.patch('/bookings/:id/complete', async (req, res) => {
+  try {
+    const ownerId = getOwnerId(req);
+    const spaceIds = await fetchOwnerSpaceIds(ownerId);
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    const bookingSpaceId = booking.space.toString();
+    const ownerSpaceIds = spaceIds.map(id => id.toString());
+    if (!ownerSpaceIds.includes(bookingSpaceId)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    if (booking.status === 'completed') {
+      return res.status(400).json({ message: 'Booking is already completed' });
+    }
+    if (booking.status === 'cancelled') {
+      return res.status(400).json({ message: 'Cannot complete a cancelled booking' });
+    }
+    if (booking.paymentStatus !== 'paid') {
+      return res.status(400).json({ message: 'Cannot complete unpaid booking' });
+    }
+    booking.status = 'completed';
+    await booking.save();
+    return res.json({
+      message: 'Booking marked as completed',
+      booking
+    });
+  } catch (error) {
+    console.error('Complete booking error:', error);
+    return res.status(500).json({ message: 'Failed to complete booking' });
+  }
+});
 router.get('/tour-requests', async (req, res) => {
   try {
     const ownerId = getOwnerId(req);
     const spaceIds = await fetchOwnerSpaceIds(ownerId);
-
     const tourBookings = await TourBooking.find({
       space: { $in: spaceIds }
     })
       .sort({ tourDate: -1 })
       .populate('space', 'name city')
       .populate('user', 'fullName email');
-
     return res.json({ tourBookings });
   } catch (error) {
     console.error('Owner tours error:', error);
     return res.status(500).json({ message: 'Failed to load tour requests' });
   }
 });
-
+router.patch('/tour-requests/:id/status', async (req, res) => {
+  try {
+    const ownerId = getOwnerId(req);
+    const spaceIds = await fetchOwnerSpaceIds(ownerId);
+    const { status } = req.body;
+    if (!['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+    const tourBooking = await TourBooking.findById(req.params.id)
+      .populate('space', 'name city');
+    if (!tourBooking) {
+      return res.status(404).json({ message: 'Tour booking not found' });
+    }
+    if (!tourBooking.space) {
+      return res.status(404).json({ message: 'Space not found for this tour booking' });
+    }
+    const tourSpaceId = tourBooking.space._id.toString();
+    const ownerSpaceIds = spaceIds.map(id => id.toString());
+    if (!ownerSpaceIds.includes(tourSpaceId)) {
+      return res.status(403).json({ message: 'Access denied. This tour does not belong to your spaces.' });
+    }
+    tourBooking.status = status;
+    await tourBooking.save();
+    const populatedTour = await TourBooking.findById(tourBooking._id)
+      .populate('space', 'name city')
+      .populate('user', 'fullName email');
+    return res.json({ tourBooking: populatedTour });
+  } catch (error) {
+    console.error('Update tour status error:', error);
+    return res.status(500).json({
+      message: error.message || 'Failed to update tour status'
+    });
+  }
+});
 router.get('/agreements', async (req, res) => {
   try {
     const ownerId = getOwnerId(req);
@@ -258,14 +332,12 @@ router.get('/agreements', async (req, res) => {
       .sort({ updatedAt: -1 })
       .populate('space', 'name city')
       .populate('booking', 'bookingDate status');
-
     return res.json({ agreements });
   } catch (error) {
     console.error('Owner agreements error:', error);
     return res.status(500).json({ message: 'Failed to load agreements' });
   }
 });
-
 router.post(
   '/agreements',
   [
@@ -291,7 +363,6 @@ router.post(
     }
   }
 );
-
 router.patch(
   '/agreements/:id',
   [
@@ -317,48 +388,18 @@ router.patch(
     }
   }
 );
-
 router.get('/reviews', async (req, res) => {
   try {
     const ownerId = getOwnerId(req);
     const reviews = await Review.find({ owner: ownerId })
       .sort({ createdAt: -1 })
       .populate('space', 'name city images');
-
     return res.json({ reviews });
   } catch (error) {
     console.error('Owner reviews error:', error);
     return res.status(500).json({ message: 'Failed to load reviews' });
   }
 });
-
-router.post(
-  '/reviews',
-  [
-    body('space').notEmpty().withMessage('Space is required'),
-    body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
-    body('comment').trim().notEmpty().withMessage('Comment is required')
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    try {
-      const ownerId = getOwnerId(req);
-      const review = await Review.create({
-        ...req.body,
-        owner: ownerId,
-        reviewerName: req.body.reviewerName || 'Guest'
-      });
-      return res.status(201).json({ review });
-    } catch (error) {
-      console.error('Create review error:', error);
-      return res.status(500).json({ message: 'Failed to create review' });
-    }
-  }
-);
-
 router.patch(
   '/reviews/:id',
   [
@@ -384,23 +425,22 @@ router.patch(
     }
   }
 );
-
 router.get('/reports/earnings', async (req, res) => {
   try {
     const ownerId = getOwnerId(req);
     const spaceIds = await fetchOwnerSpaceIds(ownerId);
-
     const earnings = await Booking.aggregate([
-      { $match: { space: { $in: spaceIds } } },
+      {
+        $match: {
+          space: { $in: spaceIds },
+          paymentStatus: 'paid'
+        }
+      },
       {
         $group: {
           _id: '$space',
           totalRevenue: { $sum: '$totalAmount' },
-          paidRevenue: {
-            $sum: {
-              $cond: [{ $eq: ['$paymentStatus', 'paid'] }, '$totalAmount', 0]
-            }
-          },
+          paidRevenue: { $sum: '$totalAmount' },
           completed: {
             $sum: {
               $cond: [{ $eq: ['$status', 'completed'] }, 1, 0]
@@ -429,14 +469,12 @@ router.get('/reports/earnings', async (req, res) => {
         }
       }
     ]);
-
     return res.json({ earnings });
   } catch (error) {
     console.error('Owner earnings error:', error);
     return res.status(500).json({ message: 'Failed to load reports' });
   }
 });
-
 router.post(
   '/support',
   [
@@ -464,7 +502,4 @@ router.post(
     }
   }
 );
-
 module.exports = router;
-
-

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-
 export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -17,8 +16,6 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
   const [success, setSuccess] = useState('');
   const [token, setToken] = useState('');
   const { register } = useAuth();
-
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -45,26 +42,20 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
       document.body.style.overflow = 'unset';
     };
   }, [open]);
-
   if (!open) return null;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-
     if (!formData.agreeToTerms) {
       alert('Please agree to the terms and conditions');
       return;
     }
-
     setError('');
     setSuccess('');
     setIsLoading(true);
-
     try {
       const response = await register({
         fullName: formData.fullName.trim(),
@@ -82,7 +73,6 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
       setError(err.message || 'Unable to create account. Please try again.');
     }
   };
-
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({
@@ -90,25 +80,23 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
       [e.target.name]: value
     });
   };
-
   return (
     <div className="fixed inset-0 z-[100]">
-      {/* Backdrop */}
+      {}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       ></div>
-
-      {/* Modal Container - Centered */}
+      {}
       <div className="relative z-[101] flex min-h-full items-center justify-center p-4">
-        {/* Modal */}
+        {}
         <div
           role="dialog"
           aria-modal="true"
           className="relative w-full max-w-2xl transform overflow-hidden rounded-3xl border-2 border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl transition"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close Button */}
+          {}
           <button
             onClick={onClose}
             className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-gray-700 transition hover:bg-slate-200 dark:hover:bg-gray-600"
@@ -117,9 +105,8 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-
           <div className="max-h-[90vh] overflow-y-auto p-8 md:p-10 lg:p-12">
-            {/* Card Header */}
+            {}
             <div className="mb-10">
               <div className="mb-4 flex items-center gap-4">
                 <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg">
@@ -133,8 +120,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                 </div>
               </div>
             </div>
-
-            {/* Registration Form */}
+            {}
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-600">
@@ -151,7 +137,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                   )}
                 </div>
               )}
-              {/* Full Name Field */}
+              {}
               <div>
                 <label className="mb-3 block text-base font-bold text-slate-700 dark:text-gray-300">
                   Full Name
@@ -173,8 +159,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                   />
                 </div>
               </div>
-
-              {/* Email Field */}
+              {}
               <div>
                 <label className="mb-3 block text-base font-bold text-slate-700 dark:text-gray-300">
                   Email Address
@@ -196,8 +181,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                   />
                 </div>
               </div>
-
-              {/* Phone Field */}
+              {}
               <div>
                 <label className="mb-3 block text-base font-bold text-slate-700 dark:text-gray-300">
                   Phone Number
@@ -219,8 +203,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                   />
                 </div>
               </div>
-
-              {/* Password Field */}
+              {}
               <div>
                 <label className="mb-3 block text-base font-bold text-slate-700 dark:text-gray-300">
                   Password
@@ -258,8 +241,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                   </button>
                 </div>
               </div>
-
-              {/* Confirm Password Field */}
+              {}
               <div>
                 <label className="mb-3 block text-base font-bold text-slate-700 dark:text-gray-300">
                   Confirm Password
@@ -297,8 +279,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                   </button>
                 </div>
               </div>
-
-              {/* Terms and Conditions */}
+              {}
               <div className="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -319,8 +300,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                   </a>
                 </label>
               </div>
-
-              {/* Submit Button */}
+              {}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -344,8 +324,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                 )}
               </button>
             </form>
-
-            {/* Divider */}
+            {}
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200"></div>
@@ -354,8 +333,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                 <span className="bg-white dark:bg-gray-800 px-4 font-medium text-slate-500 dark:text-gray-400">Or sign up with</span>
               </div>
             </div>
-
-            {/* Social Login Buttons */}
+            {}
             <div className="mb-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -379,8 +357,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
                 Instagram
               </button>
             </div>
-
-            {/* Sign In Link */}
+            {}
             <div className="border-t border-slate-100 dark:border-gray-700 pt-6 text-center">
               <p className="text-sm text-slate-600 dark:text-gray-400">
                 Already have an account?{' '}
@@ -401,4 +378,3 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }) {
     </div>
   );
 }
-

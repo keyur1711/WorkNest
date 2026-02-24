@@ -6,7 +6,6 @@ import { useAuth } from '../hooks/useAuth';
 import { getMyBookings } from '../services/bookingService';
 import { getMyTourBookings } from '../services/bookingService';
 import { getFavorites } from '../services/favoritesService';
-
 export default function Dashboard() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
@@ -14,14 +13,12 @@ export default function Dashboard() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const loadData = async () => {
       if (!user) {
         setLoading(false);
         return;
       }
-
       try {
         setLoading(true);
         setError(null);
@@ -51,17 +48,14 @@ export default function Dashboard() {
     };
     loadData();
   }, [user]);
-
   const upcomingBookings = bookings.filter(b =>
     b.status !== 'cancelled' &&
     new Date(b.bookingDate) >= new Date()
   ).slice(0, 3);
-
   const upcomingTours = tourBookings.filter(t =>
     t.status !== 'cancelled' &&
     new Date(t.tourDate) >= new Date()
   ).slice(0, 2);
-
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -79,7 +73,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
@@ -110,7 +103,6 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20">
             <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Total Bookings</div>
@@ -129,10 +121,11 @@ export default function Dashboard() {
           <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
             <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">Tour Requests</div>
             <div className="text-3xl font-bold text-gray-900 dark:text-white">{tourBookings.length}</div>
-            <div className="text-sm text-amber-600 dark:text-amber-400 font-medium mt-2">Scheduled tours</div>
+            <Link to="/tours" className="text-sm text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 font-medium mt-2 inline-block">
+              View all tours →
+            </Link>
           </div>
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
@@ -172,10 +165,12 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">Upcoming Tours</h2>
+              <Link to="/tours" className="text-sm text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 font-medium">
+                View all
+              </Link>
             </div>
             {upcomingTours.length === 0 ? (
               <div className="text-center py-8">
@@ -207,7 +202,6 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link
             to="/search"
@@ -225,7 +219,6 @@ export default function Dashboard() {
               </div>
             </div>
           </Link>
-
           <Link
             to="/profile"
             className="p-6 rounded-2xl border-2 border-gray-200 dark:border-gray-700 hover:border-sky-300 dark:hover:border-sky-500 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition group"

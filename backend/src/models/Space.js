@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const coordinatesSchema = new mongoose.Schema(
   {
     lat: {
@@ -13,7 +12,6 @@ const coordinatesSchema = new mongoose.Schema(
   },
   { _id: false }
 );
-
 const availabilitySchema = new mongoose.Schema(
   {
     openDays: {
@@ -27,7 +25,6 @@ const availabilitySchema = new mongoose.Schema(
   },
   { _id: false }
 );
-
 const spaceSchema = new mongoose.Schema(
   {
     name: {
@@ -59,6 +56,11 @@ const spaceSchema = new mongoose.Schema(
       default: 0,
       min: 0,
       max: 5
+    },
+    ratingCount: {
+      type: Number,
+      default: 0,
+      min: 0
     },
     capacity: {
       type: Number,
@@ -104,15 +106,10 @@ const spaceSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
-// Indexes for better query performance
 spaceSchema.index({ city: 1, type: 1 });
 spaceSchema.index({ featured: 1 });
 spaceSchema.index({ rating: -1 });
 spaceSchema.index({ pricePerDay: 1 });
 spaceSchema.index({ name: 'text', city: 'text', type: 'text', locationText: 'text' });
-
 const Space = mongoose.model('Space', spaceSchema);
-
 module.exports = Space;
-

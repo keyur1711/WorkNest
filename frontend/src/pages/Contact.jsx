@@ -2,7 +2,6 @@ import { useState } from 'react';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import { submitContactForm } from '../services/contactService';
-
 export default function Contact() {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -15,27 +14,23 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
-
   const contacts = [
     { label: 'General Support', value: 'support@worknest.com' },
     { label: 'Sales', value: 'sales@worknest.com' },
     { label: 'Phone', value: '+91 98765 43210' },
     { label: 'HQ', value: 'Bengaluru, India' }
   ];
-
   const faqs = [
     { q: 'How soon will you respond?', a: 'We typically respond within 24 hours on business days.' },
     { q: 'Can I book a tour from here?', a: 'Yes. Share a date in the message and we will confirm availability.' },
     { q: 'Do you support enterprise billing?', a: 'We support consolidated invoicing and SLAs for enterprise accounts.' },
     { q: 'Where can I find refunds/cancellations?', a: 'See our Refund & Cancellation Policy in the Legal section of the footer.' }
   ];
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
-
       <main className="flex-1">
-        {/* Hero */}
+        {}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-brand-50/60 via-white to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-900" />
           <div className="relative w-full px-6 md:px-12 lg:px-16 pt-14 pb-10">
@@ -47,15 +42,12 @@ export default function Contact() {
             </p>
           </div>
         </section>
-
-        {/* Contact grid */}
+        {}
         <section className="w-full px-6 md:px-12 lg:px-16 pb-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-
-            {/* Left Info Section */}
+            {}
             <aside className="md:col-span-4">
               <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition">
-
                 <div className="flex items-center gap-2 mb-6">
                   <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center">
                     <svg className="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,13 +56,12 @@ export default function Contact() {
                   </div>
                   <div className="text-lg font-bold text-gray-900 dark:text-white">Get in touch</div>
                 </div>
-
-                {/* Contacts */}
+                {}
                 <ul className="space-y-4">
                   {contacts.map((c) => (
                     <li key={c.label} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                       <div className="w-10 h-10 rounded-lg bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 grid place-items-center">
-                        {/* Icons */}
+                        {}
                         {c.label === 'General Support' && (
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -93,7 +84,6 @@ export default function Contact() {
                           </svg>
                         )}
                       </div>
-
                       <div>
                         <div className="font-semibold text-gray-900 dark:text-white text-sm">{c.label}</div>
                         <div className="text-sm text-gray-700 dark:text-gray-300">{c.value}</div>
@@ -101,11 +91,9 @@ export default function Contact() {
                     </li>
                   ))}
                 </ul>
-
-                {/* Office Locations */}
+                {}
                 <div className="mt-6">
                   <div className="text-lg font-bold text-gray-900 dark:text-white mb-3">Our Offices</div>
-
                   <div className="grid grid-cols-2 gap-3">
                     {['Bengaluru', 'Mumbai', 'Delhi', 'Pune'].map((c) => (
                       <div
@@ -119,8 +107,7 @@ export default function Contact() {
                 </div>
               </div>
             </aside>
-
-            {/* Right Form Section */}
+            {}
             <div className="md:col-span-8">
               <form
                 className="p-8 rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
@@ -129,7 +116,6 @@ export default function Contact() {
                   setIsSubmitting(true);
                   setSubmitError(null);
                   setSubmitSuccess(false);
-
                   try {
                     await submitContactForm(formData);
                     setSubmitSuccess(true);
@@ -157,52 +143,45 @@ export default function Contact() {
                   </div>
                   <div className="text-lg font-bold text-gray-900 dark:text-white">Send us a message</div>
                 </div>
-
                 {submitSuccess && (
                   <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-800 px-4 py-3 text-emerald-600 dark:text-emerald-400">
                     Thank you for contacting us! We will get back to you soon.
                   </div>
                 )}
-
                 {submitError && (
                   <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-900/20 dark:border-rose-800 px-4 py-3 text-rose-600 dark:text-rose-400">
                     {submitError}
                   </div>
                 )}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input 
-                    className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
-                    placeholder="Full name" 
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Full name"
                     required
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   />
-
-                  <input 
-                    type="email" 
-                    className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
-                    placeholder="Work email" 
+                  <input
+                    type="email"
+                    className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Work email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
-
-                  <input 
-                    className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="Company (optional)"
                     value={formData.company}
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                   />
-
-                  <input 
-                    className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="Phone (optional)"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />
-
-                  <select 
+                  <select
                     className="h-12 px-4 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 md:col-span-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -213,23 +192,20 @@ export default function Contact() {
                     <option value="Owner partnership">Owner partnership</option>
                     <option value="Support">Support</option>
                   </select>
-
-                  <textarea 
-                    rows={5} 
-                    className="md:col-span-2 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                  <textarea
+                    rows={5}
+                    className="md:col-span-2 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-400 resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="Tell us how we can help"
                     required
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   ></textarea>
                 </div>
-
                 <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-6 border-t border-gray-100 dark:border-gray-700">
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     By submitting, you agree to our Terms & Privacy.
                   </div>
-
-                  <button 
+                  <button
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full sm:w-auto h-12 px-8 rounded-lg bg-gradient-to-r from-brand-600 to-brand-700 text-white font-semibold hover:from-brand-700 hover:to-brand-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -238,15 +214,13 @@ export default function Contact() {
                   </button>
                 </div>
               </form>
-
               <div className="mt-6 rounded-2xl border border-gray-100 dark:border-gray-700 bg-[linear-gradient(135deg,#f6f7fb,#eef2ff)] dark:bg-[linear-gradient(135deg,#1f2937,#111827)] h-60 flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
                 Map placeholder
               </div>
             </div>
           </div>
         </section>
-
-        {/* FAQ */}
+        {}
         <section className="w-full px-6 md:px-12 lg:px-16 pb-14">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">FAQs</h2>
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -262,7 +236,6 @@ export default function Contact() {
           </div>
         </section>
       </main>
-
       <Footer />
     </div>
   );

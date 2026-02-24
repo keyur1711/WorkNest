@@ -5,22 +5,18 @@ import workspace3 from '../images/uneebo-office-design-UgYT5nkXdK4-unsplash.jpg'
 import workspace4 from '../images/pawel-chu-ULh0i2txBCY-unsplash.jpg';
 import workspace5 from '../images/suryadhityas-NrDZJ9oWV_Y-unsplash.jpg';
 import workspace6 from '../images/running-a-successful-coworking-space-5aaa98c0bb414814ce745dc8.jpg';
-
 const workspaceImages = [workspace1, workspace2, workspace3, workspace4, workspace5, workspace6];
-
 export default function SpaceCard({ space, onToggleFavorite, isFavorite, commuteMins }) {
-  // Handle both _id (MongoDB) and id (mock data)
   const spaceId = space._id || space.id;
-  // Use space ID to consistently pick an image
   const imageIndex = (spaceId ? String(spaceId).length : 0) % workspaceImages.length;
   const spaceImage = space.images?.[0] || workspaceImages[imageIndex];
-
+  const ratingValue = Number(space.rating ?? 0);
   return (
     <Link
       to={`/spaces/${spaceId}`}
       className="group block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500"
     >
-      {/* Image Section */}
+      {}
       <div className="relative h-64 overflow-hidden">
         <img
           src={spaceImage}
@@ -28,18 +24,18 @@ export default function SpaceCard({ space, onToggleFavorite, isFavorite, commute
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-
-        {/* Rating Badge */}
+        {}
         <div className="absolute top-4 left-4">
           <div className="px-3 py-1.5 bg-white dark:bg-gray-900 rounded-lg shadow-lg flex items-center gap-1">
             <svg className="w-4 h-4 text-yellow-500 fill-current" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
-            <span className="text-sm font-bold text-gray-900 dark:text-white">{space.rating || '4.5'}</span>
+            <span className="text-sm font-bold text-gray-900 dark:text-white">
+              {ratingValue > 0 ? ratingValue.toFixed(1) : '0'}
+            </span>
           </div>
         </div>
-
-        {/* Price Badge */}
+        {}
         <div className="absolute bottom-4 right-4">
           <div className="px-4 py-2 bg-blue-600 rounded-lg shadow-lg">
             <div className="text-white font-bold text-lg">₹{space.pricePerDay}</div>
@@ -47,13 +43,11 @@ export default function SpaceCard({ space, onToggleFavorite, isFavorite, commute
           </div>
         </div>
       </div>
-
-      {/* Content Section */}
+      {}
       <div className="p-6">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
           {space.name}
         </h3>
-
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -61,7 +55,6 @@ export default function SpaceCard({ space, onToggleFavorite, isFavorite, commute
           </svg>
           <span className="line-clamp-1">{space.locationText || space.city}</span>
         </div>
-
         {typeof commuteMins === 'number' && (
           <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
             <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +63,6 @@ export default function SpaceCard({ space, onToggleFavorite, isFavorite, commute
             <span className="text-xs font-semibold text-green-700 dark:text-green-400">~{commuteMins} min away</span>
           </div>
         )}
-
         <div className="flex flex-wrap gap-2 mb-4">
           {space.amenities?.slice(0, 2).map((amenity, idx) => (
             <span
@@ -86,7 +78,6 @@ export default function SpaceCard({ space, onToggleFavorite, isFavorite, commute
             </span>
           )}
         </div>
-
         {onToggleFavorite && (
           <button
             type="button"

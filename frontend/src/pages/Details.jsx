@@ -5,21 +5,20 @@ import Footer from '../shared/Footer';
 import TourModal from '../components/TourModal';
 import { useAuth } from '../hooks/useAuth';
 import { addToFavorites, removeFromFavorites, getFavorites } from '../services/favoritesService';
-import { createBooking } from '../services/bookingService';
+import { createBooking, getBookingAgreement, acceptBookingAgreement, getUnavailableDatesForSpace } from '../services/bookingService';
 import LoginModal from '../components/LoginModal';
 import { getSpace } from '../services/spaceService';
 import { getSpaceReviewCount } from '../services/reviewService';
 import { createPaymentOrder, verifyPayment } from '../services/paymentService';
-
 export default function Details() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isEndUser = user?.role === 'user';
   const [space, setSpace] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviewCount, setReviewCount] = useState(0);
-
   const [isFav, setIsFav] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -30,8 +29,13 @@ export default function Details() {
   const [isBooking, setIsBooking] = useState(false);
   const [bookingError, setBookingError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
-
-  // Load space data
+  const [pendingBooking, setPendingBooking] = useState(null);
+  const [agreementModalOpen, setAgreementModalOpen] = useState(false);
+  const [agreementChecked, setAgreementChecked] = useState(false);
+  const [agreementLoading, setAgreementLoading] = useState(false);
+  const [agreementError, setAgreementError] = useState('');
+  const [agreementData, setAgreementData] = useState(null);
+  const [unavailableDates, setUnavailableDates] = useState([]);
   useEffect(() => {
     const loadSpace = async () => {
       try {
@@ -40,8 +44,6 @@ export default function Details() {
         const data = await getSpace(id);
         setSpace(data);
         setBookingData(prev => ({ ...prev, type: data.type || 'Hot Desk' }));
-        
-        // Load review count
         try {
           const count = await getSpaceReviewCount(id);
           setReviewCount(count);
@@ -62,6 +64,19 @@ export default function Details() {
   }, [id]);
 
   useEffect(() => {
+    const loadUnavailable = async () => {
+      if (!space) return;
+      try {
+        const spaceId = space._id || space.id;
+        const response = await getUnavailableDatesForSpace(spaceId);
+        setUnavailableDates(response.unavailableDates || []);
+      } catch (err) {
+        console.error('Error loading unavailable dates:', err);
+      }
+    };
+    loadUnavailable();
+  }, [space]);
+  useEffect(() => {
     const loadFavorites = async () => {
       if (!user || !space) return;
       try {
@@ -74,13 +89,11 @@ export default function Details() {
     };
     loadFavorites();
   }, [user, space]);
-
   const handleToggleFavorite = async () => {
     if (!user) {
       setLoginModalOpen(true);
       return;
     }
-
     try {
       const spaceId = space._id || space.id;
       if (isFav) {
@@ -95,7 +108,6 @@ export default function Details() {
       alert('Failed to update favorites. Please try again.');
     }
   };
-
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
       if (window.Razorpay) {
@@ -109,46 +121,49 @@ export default function Details() {
       document.body.appendChild(script);
     });
   };
-
-  const handleBookNow = async () => {
-    if (!user) {
-      setLoginModalOpen(true);
-      return;
-    }
-
-    if (!bookingData.bookingDate) {
-      setBookingError('Please select a booking date');
-      return;
-    }
-
-    setIsBooking(true);
-    setBookingError(null);
-
+  const getAgreementTextSnapshot = (data) => {
+    if (data?.agreement?.content) return data.agreement.content;
+    if (data?.bookingAgreement?.text) return data.bookingAgreement.text;
+    if (data?.agreement?.documentUrl) return `Please review the agreement document: ${data.agreement.documentUrl}`;
+    return 'Agreement text not provided.';
+  };
+  const loadAgreementForBooking = async (bookingId) => {
+    setAgreementLoading(true);
+    setAgreementError('');
     try {
-      const spaceId = space._id || space.id;
-      
-      // Step 1: Create booking
-      const bookingResponse = await createBooking({
-        spaceId,
-        type: bookingData.type,
-        bookingDate: bookingData.bookingDate
-      });
-
-      const booking = bookingResponse.booking;
+      const response = await getBookingAgreement(bookingId);
+      setAgreementData(response);
+      if (!response?.agreement && !response?.bookingAgreement?.text) {
+        setAgreementError('Agreement is not available for this space. Please contact the workspace owner.');
+      }
+    } catch (err) {
+      const msg = err.message || 'Failed to load agreement. Please try again.';
+      setAgreementError(msg);
+      setBookingError(msg);
+      throw err;
+    } finally {
+      setAgreementLoading(false);
+    }
+  };
+  const startPaymentFlow = async (booking) => {
+    if (!booking) {
+      setBookingError('Booking not found. Please try again.');
+      return;
+    }
+    setBookingError(null);
+    setIsBooking(true);
+    try {
       const bookingId = booking._id || booking.id;
-
-      // Step 2: Load Razorpay script
       const razorpayLoaded = await loadRazorpayScript();
       if (!razorpayLoaded) {
         setBookingError('Failed to load payment gateway. Please try again.');
         setIsBooking(false);
         return;
       }
-
-      // Step 3: Create payment order
       const orderResponse = await createPaymentOrder(bookingId);
-
-      // Step 4: Open Razorpay checkout
+      const agreementTextSnapshot = getAgreementTextSnapshot(agreementData);
+      const agreementVersion = agreementData?.agreement?.version || agreementData?.bookingAgreement?.version || '1.0';
+      const agreementId = agreementData?.agreement?.id || agreementData?.bookingAgreement?.agreementId;
       const options = {
         key: orderResponse.keyId,
         amount: orderResponse.amount,
@@ -159,14 +174,23 @@ export default function Details() {
         handler: async function (response) {
           try {
             setIsBooking(true);
-            // Verify payment
             await verifyPayment({
               bookingId,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature
             });
-            
+            try {
+              await acceptBookingAgreement(bookingId, {
+                agreementText: agreementTextSnapshot,
+                agreementVersion,
+                agreementId
+              });
+            } catch (acceptErr) {
+              console.error('Agreement acceptance error:', acceptErr);
+            }
+            setAgreementModalOpen(false);
+            setPendingBooking(null);
             setBookingSuccess(true);
             setTimeout(() => {
               navigate('/bookings');
@@ -192,13 +216,64 @@ export default function Details() {
           }
         }
       };
-
       const razorpay = new window.Razorpay(options);
       razorpay.open();
-      setIsBooking(false); // Set to false as Razorpay modal is open
-      
+      setIsBooking(false);
     } catch (err) {
-      // Extract error message from API response
+      let errorMessage = 'Failed to continue to payment. Please try again.';
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (err.payload?.message) {
+        errorMessage = err.payload.message;
+      } else if (err.payload?.errors && Array.isArray(err.payload.errors)) {
+        errorMessage = err.payload.errors.map(e => e.msg || e.message || e).join(', ');
+      }
+      setBookingError(errorMessage);
+      console.error('Payment flow error details:', err);
+      setIsBooking(false);
+    }
+  };
+  const handleContinueToPayment = async () => {
+    if (!agreementChecked) {
+      setAgreementError('Please agree to the terms before continuing.');
+      return;
+    }
+    setAgreementError('');
+    setAgreementModalOpen(false);
+    await startPaymentFlow(pendingBooking);
+  };
+  const handleBookNow = async () => {
+    if (!user) {
+      setLoginModalOpen(true);
+      return;
+    }
+    if (!isEndUser) {
+      setBookingError('Only user accounts can book spaces. Please sign in with a user account.');
+      return;
+    }
+    if (!bookingData.bookingDate) {
+      setBookingError('Please select a booking date');
+      return;
+    }
+    setIsBooking(true);
+    setBookingError(null);
+    setAgreementError('');
+    setAgreementChecked(false);
+    setAgreementData(null);
+    setPendingBooking(null);
+    try {
+      const spaceId = space._id || space.id;
+      const bookingResponse = await createBooking({
+        spaceId,
+        type: bookingData.type,
+        bookingDate: bookingData.bookingDate
+      });
+      const booking = bookingResponse.booking;
+      const bookingId = booking._id || booking.id;
+      setPendingBooking(booking);
+      await loadAgreementForBooking(bookingId);
+      setAgreementModalOpen(true);
+    } catch (err) {
       let errorMessage = 'Failed to create booking. Please try again.';
       if (err.message) {
         errorMessage = err.message;
@@ -209,18 +284,21 @@ export default function Details() {
       }
       setBookingError(errorMessage);
       console.error('Booking error details:', err);
+    } finally {
       setIsBooking(false);
     }
   };
-
   const handleBookTour = () => {
     if (!user) {
       setLoginModalOpen(true);
       return;
     }
+    if (!isEndUser) {
+      setBookingError('Only user accounts can request tours. Please sign in with a user account.');
+      return;
+    }
     setTourOpen(true);
   };
-
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -236,7 +314,6 @@ export default function Details() {
       </div>
     );
   }
-
   if (error || !space) {
     return (
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -250,9 +327,9 @@ export default function Details() {
       </div>
     );
   }
-
   const spaceId = space._id || space.id;
-
+  const agreementTextToDisplay = getAgreementTextSnapshot(agreementData);
+  const agreementVersion = agreementData?.agreement?.version || agreementData?.bookingAgreement?.version || '1.0';
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
@@ -267,7 +344,6 @@ export default function Details() {
             </Link>
           </div>
         </section>
-
         <section className="w-full px-6 md:px-12 lg:px-16 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
@@ -275,8 +351,8 @@ export default function Details() {
                 {space.images && space.images.length > 0 ? (
                   <>
                     <div className="col-span-12 rounded-2xl aspect-video shadow-xl overflow-hidden group cursor-pointer">
-                      <img 
-                        src={space.images[0]} 
+                      <img
+                        src={space.images[0]}
                         alt={space.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
@@ -287,8 +363,8 @@ export default function Details() {
                     </div>
                     {space.images.slice(1, 4).map((img, idx) => (
                       <div key={idx} className="col-span-4 h-24 rounded-xl overflow-hidden hover:opacity-80 transition cursor-pointer">
-                        <img 
-                          src={img} 
+                        <img
+                          src={img}
                           alt={`${space.name} ${idx + 2}`}
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -314,7 +390,6 @@ export default function Details() {
                   </>
                 )}
               </div>
-
               <div className="mt-6 flex items-start justify-between gap-4">
                 <div>
                   <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">{space.name}</h1>
@@ -357,7 +432,6 @@ export default function Details() {
                   )}
                 </button>
               </div>
-
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-6 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition">
                   <div className="flex items-center gap-2 mb-4">
@@ -387,7 +461,6 @@ export default function Details() {
                 </div>
               </div>
             </div>
-
             <aside className="lg:col-span-1">
               <div className="sticky top-24 p-6 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 shadow-xl">
                 <div className="flex items-baseline gap-2 mb-6">
@@ -408,7 +481,16 @@ export default function Details() {
                   <input
                     type="date"
                     value={bookingData.bookingDate}
-                    onChange={(e) => setBookingData({ ...bookingData, bookingDate: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (unavailableDates.includes(value)) {
+                        setBookingError('This date is already booked. Please select another date.');
+                        setBookingData({ ...bookingData, bookingDate: '' });
+                        return;
+                      }
+                      setBookingError(null);
+                      setBookingData({ ...bookingData, bookingDate: value });
+                    }}
                     min={new Date().toISOString().split('T')[0]}
                     className="h-11 px-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                   />
@@ -425,10 +507,10 @@ export default function Details() {
                 )}
                 <button
                   onClick={handleBookNow}
-                  disabled={isBooking || bookingSuccess}
+                  disabled={isBooking || bookingSuccess || !isEndUser}
                   className="mt-4 w-full h-12 rounded-lg bg-gradient-to-r from-brand-600 to-brand-700 text-white font-semibold hover:from-brand-700 hover:to-brand-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isBooking ? 'Booking...' : 'Book Now'}
+                  {!isEndUser ? 'Sign in as User to Book' : isBooking ? 'Booking...' : 'Book Now'}
                 </button>
                 <button
                   onClick={handleBookTour}
@@ -468,6 +550,77 @@ export default function Details() {
         onClose={() => setLoginModalOpen(false)}
         onSwitchToRegister={() => { }}
       />
+      {agreementModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Booking Agreement</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Version {agreementVersion}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setAgreementModalOpen(false);
+                  setAgreementError('');
+                }}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {agreementLoading ? (
+              <div className="flex items-center justify-center py-12 text-gray-600 dark:text-gray-300">
+                Loading agreement...
+              </div>
+            ) : (
+              <>
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-h-72 overflow-y-auto bg-gray-50 dark:bg-gray-900/40 whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">
+                  {agreementTextToDisplay}
+                </div>
+                <label className="mt-4 flex items-start gap-3 text-sm text-gray-700 dark:text-gray-200">
+                  <input
+                    type="checkbox"
+                    className="mt-1 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-brand-600 focus:ring-brand-500"
+                    checked={agreementChecked}
+                    onChange={(e) => {
+                      setAgreementChecked(e.target.checked);
+                      if (agreementError) setAgreementError('');
+                    }}
+                  />
+                  <span>
+                    I have read and agree to the terms for this workspace booking.
+                  </span>
+                </label>
+                {agreementError && (
+                  <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-rose-600 text-sm">
+                    {agreementError}
+                  </div>
+                )}
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => {
+                      setAgreementModalOpen(false);
+                      setAgreementError('');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="px-5 py-2 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!agreementChecked || isBooking || agreementLoading}
+                    onClick={handleContinueToPayment}
+                  >
+                    Continue to Payment
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );

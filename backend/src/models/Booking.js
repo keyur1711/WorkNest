@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const bookingSchema = new mongoose.Schema(
   {
     user: {
@@ -59,6 +58,19 @@ const bookingSchema = new mongoose.Schema(
       enum: ['pending', 'paid', 'refunded', 'failed'],
       default: 'pending'
     },
+    userRating: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    userReviewComment: {
+      type: String,
+      trim: true
+    },
+    userReviewId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Review'
+    },
     razorpayOrderId: {
       type: String
     },
@@ -68,22 +80,39 @@ const bookingSchema = new mongoose.Schema(
     razorpaySignature: {
       type: String
     },
+    paidAt: {
+      type: Date
+    },
     agreementUrl: {
       type: String
+    },
+    agreementAccepted: {
+      type: Boolean,
+      default: false
+    },
+    agreementAcceptedAt: {
+      type: Date
+    },
+    agreementVersion: {
+      type: String,
+      trim: true
+    },
+    agreementTextSnapshot: {
+      type: String,
+      trim: true
+    },
+    agreementId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Agreement'
     }
   },
   {
     timestamps: true
   }
 );
-
-// Indexes for better query performance
 bookingSchema.index({ user: 1, status: 1 });
 bookingSchema.index({ space: 1, bookingDate: 1 });
 bookingSchema.index({ bookingDate: 1 });
 bookingSchema.index({ status: 1 });
-
 const Booking = mongoose.model('Booking', bookingSchema);
-
 module.exports = Booking;
-

@@ -1,9 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-
 const router = express.Router();
-
-// Submit contact form
 router.post(
   '/',
   [
@@ -19,12 +16,8 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     try {
-      // In a real application, you would save this to a database or send an email
-      // For now, we'll just return a success message
       const { fullName, email, message, subject, company, phone } = req.body;
-      
       console.log('Contact form submission:', {
         fullName,
         email,
@@ -33,10 +26,6 @@ router.post(
         phone,
         message
       });
-
-      // TODO: Save to database or send email notification
-      // Example: await ContactSubmission.create({ fullName, email, message, ... });
-
       return res.status(201).json({
         message: 'Thank you for contacting us! We will get back to you soon.',
         submitted: true
@@ -47,6 +36,4 @@ router.post(
     }
   }
 );
-
 module.exports = router;
-

@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import { getSpaces, getFilters } from '../services/spaceService';
-
 export default function Locations() {
   const [cityToCount, setCityToCount] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -15,16 +13,12 @@ export default function Locations() {
           getFilters().catch(() => ({ cities: [] })),
           getSpaces({ limit: 1000 }).catch(() => ({ data: [] }))
         ]);
-
         const cities = filtersData.cities || [];
         const spaces = spacesData.data || [];
-
-        // Count spaces per city
         const counts = cities.map((city) => ({
           city,
           count: spaces.filter((s) => s.city === city).length
         }));
-
         setCityToCount(counts);
       } catch (err) {
         console.error('Error loading locations:', err);
@@ -39,7 +33,7 @@ export default function Locations() {
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
       <main className="flex-1">
-        {/* Hero Section */}
+        {}
         <section className="relative overflow-hidden bg-gradient-to-b from-brand-50/40 via-white to-white dark:from-gray-800 dark:via-gray-900 dark:to-gray-900">
           <div className="w-full px-6 md:px-12 lg:px-16 pt-12 pb-8">
             <div className="flex items-center gap-3 mb-4">
@@ -56,7 +50,6 @@ export default function Locations() {
             </div>
           </div>
         </section>
-
         <section className="w-full px-6 md:px-12 lg:px-16 py-8">
           {loading ? (
             <div className="text-center py-12">
@@ -98,5 +91,3 @@ export default function Locations() {
     </div>
   );
 }
-
-

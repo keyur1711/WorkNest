@@ -5,9 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
 const { JWT_SECRET } = require('../config/jwt');
-
 const router = express.Router();
-
 const generateToken = (user) =>
   jwt.sign(
     {
@@ -18,7 +16,6 @@ const generateToken = (user) =>
     JWT_SECRET,
     { expiresIn: '7d' }
   );
-
 router.post(
   '/register',
   [
@@ -49,49 +46,50 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const { fullName, email, password, phone, role, agreeToTerms } = req.body;
-
     try {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(409).json({ message: 'Email already registered' });
       }
-
       const hashedPassword = await bcrypt.hash(password, 12);
-
-      // Set role: use provided role or default to 'user'
-      // Admin role cannot be set during registration
-      const userRole = role;
-
       const user = await User.create({
         fullName,
         email,
         password: hashedPassword,
         phone,
-        role: userRole,
+        role: role,
         agreeToTerms: agreeToTerms === true || agreeToTerms === 'true'
       });
-
+      console.log('User registered:', { email: user.email, role: user.role, fullName: user.fullName });
       const token = generateToken(user);
-
-      console.log('User registered:', {
-        email: user.email,
-        role: user.role,
-        fullName: user.fullName
-      });
-
       return res.status(201).json({
+        message: 'Registration successful!',
         user: user.toJSON(),
         token
       });
     } catch (error) {
       console.error('Register error:', error);
-      return res.status(500).json({ message: 'Server error' });
+      if (error.name === 'ValidationError') {
+        const validationErrors = Object.values(error.errors).map(err => err.message);
+        return res.status(400).json({
+          message: validationErrors.join(', '),
+          errors: validationErrors
+        });
+      }
+      if (error.name === 'CastError') {
+        return res.status(400).json({ message: 'Invalid data format' });
+      }
+      if (error.code === 11000) {
+        return res.status(409).json({ message: 'Email already registered' });
+      }
+      return res.status(500).json({
+        message: error.message || 'Server error',
+        error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   }
 );
-
 router.post(
   '/login',
   [
@@ -107,21 +105,16 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const { email, password, role } = req.body;
-
     try {
       const user = await User.findOne({ email });
       if (!user) {
         return res.status(401).json({ message: 'Invalid email or password' });
       }
-
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(401).json({ message: 'Invalid email or password' });
       }
-
-      // Role-based validation (only for user and workspace_owner, admin doesn't need role selection)
       if (user.role === 'admin') {
         console.log('Admin login detected, bypassing role match check');
       } else {
@@ -130,23 +123,15 @@ router.post(
             message: 'Please select your role (User or Workspace Owner) to sign in.'
           });
         }
-
         if (user.role !== role) {
           return res.status(403).json({
             message: `Invalid role. This account is registered as ${user.role.replace('_', ' ')}, but you selected ${role.replace('_', ' ')}. Please select the correct role or contact support.`
           });
         }
       }
-
       const token = generateToken(user);
       const userJSON = user.toJSON();
-      
-      // Debug logging
       console.log('Login successful for:', user.email);
-      console.log('User role from database:', user.role);
-      console.log('Selected role:', role);
-      console.log('User JSON role:', userJSON.role);
-
       return res.json({
         user: userJSON,
         token
@@ -157,7 +142,6 @@ router.post(
     }
   }
 );
-
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password -__v');
@@ -170,7 +154,6 @@ router.get('/me', auth, async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
-
 router.patch(
   '/me',
   auth,
@@ -184,25 +167,20 @@ router.patch(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     try {
       const { fullName, email, phone } = req.body;
       const updateData = {};
-
       if (fullName) updateData.fullName = fullName;
       if (email) updateData.email = email;
       if (phone !== undefined) updateData.phone = phone;
-
       const user = await User.findByIdAndUpdate(
         req.user.id,
         updateData,
         { new: true, runValidators: true }
       ).select('-password -__v');
-
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-
       return res.json({ user });
     } catch (error) {
       console.error('Update user error:', error);
@@ -213,6 +191,4 @@ router.patch(
     }
   }
 );
-
 module.exports = router;
-

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import { ownerService } from '../services/ownerService';
-
 const OWNER_CAPABILITIES = [
   { key: 'listings', icon: '🏢', title: 'Manage Workspace Listings', description: 'Create, update, and publish every workspace you offer.', tab: 'spaces' },
   { key: 'bookings', icon: '📅', title: 'Manage Bookings', description: 'Track reservations, statuses, and payments in one place.', tab: 'bookings' },
@@ -12,9 +11,9 @@ const OWNER_CAPABILITIES = [
   { key: 'reviews', icon: '⭐', title: 'Manage Reviews', description: 'Capture voice-of-the-customer feedback and respond quickly.', tab: 'reviews' },
   { key: 'reports', icon: '📈', title: 'View Earnings & Reports', description: 'Understand performance trends, payouts, and top spaces.', tab: 'stats' },
   { key: 'history', icon: '🗂️', title: 'View Booking History', description: 'Audit past bookings for reconciliation and insights.', tab: 'bookings' },
-  { key: 'support', icon: '💬', title: 'Contact Support', description: 'Reach WorkNest concierge for payouts, onboarding, and more.', tab: 'support' }
+  { key: 'support', icon: '💬', title: 'Contact Support', description: 'Reach WorkNest concierge for payouts, onboarding, and more.', tab: 'support' },
+  { key: 'pricing', icon: '💳', title: 'Subscription & Pricing', description: 'Upgrade your plan to list multiple spaces.', href: '/pricing' }
 ];
-
 const DASHBOARD_TABS = [
   { key: 'stats', label: 'Overview' },
   { key: 'spaces', label: 'Listings' },
@@ -24,7 +23,6 @@ const DASHBOARD_TABS = [
   { key: 'reviews', label: 'Reviews' },
   { key: 'support', label: 'Support' }
 ];
-
 const DEFAULT_SPACE_FORM = {
   name: '',
   city: '',
@@ -34,27 +32,17 @@ const DEFAULT_SPACE_FORM = {
   imagesInput: '',
   description: ''
 };
-
 const DEFAULT_AGREEMENT_FORM = {
   space: '',
   title: '',
   documentUrl: '',
   documentType: ''
 };
-
-const DEFAULT_REVIEW_FORM = {
-  space: '',
-  reviewerName: '',
-  rating: 5,
-  comment: ''
-};
-
 const DEFAULT_SUPPORT_FORM = {
   subject: '',
   priority: 'normal',
   message: ''
 };
-
 const formatCurrency = (value = 0) => {
   try {
     return value.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
@@ -62,13 +50,11 @@ const formatCurrency = (value = 0) => {
     return `₹${Number(value || 0).toFixed(0)}`;
   }
 };
-
 export default function WorkspaceOwnerDashboard() {
   const [activeTab, setActiveTab] = useState('stats');
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
   const [overview, setOverview] = useState(null);
   const [earningsReport, setEarningsReport] = useState([]);
   const [spaces, setSpaces] = useState([]);
@@ -77,13 +63,10 @@ export default function WorkspaceOwnerDashboard() {
   const [tourBookings, setTourBookings] = useState([]);
   const [agreements, setAgreements] = useState([]);
   const [reviews, setReviews] = useState([]);
-
   const [spaceForm, setSpaceForm] = useState(DEFAULT_SPACE_FORM);
   const [editingSpaceId, setEditingSpaceId] = useState(null);
   const [agreementForm, setAgreementForm] = useState(DEFAULT_AGREEMENT_FORM);
-  const [reviewForm, setReviewForm] = useState(DEFAULT_REVIEW_FORM);
   const [supportForm, setSupportForm] = useState(DEFAULT_SUPPORT_FORM);
-
   useEffect(() => {
     const bootstrap = async () => {
       try {
@@ -95,10 +78,8 @@ export default function WorkspaceOwnerDashboard() {
         setPageLoading(false);
       }
     };
-
     bootstrap();
   }, []);
-
   useEffect(() => {
     if (activeTab === 'bookings') {
       loadBookings(bookingScope);
@@ -113,94 +94,84 @@ export default function WorkspaceOwnerDashboard() {
       loadEarningsReport();
     }
   }, [activeTab, bookingScope]);
-
   const ownerSpacesForSelect = useMemo(
     () => spaces.map((space) => ({ id: space._id, label: `${space.name} • ${space.city}` })),
     [spaces]
   );
-
   const resetMessages = () => {
     setError('');
     setSuccess('');
   };
-
   const loadOverview = async () => {
     try {
-      const data = await ownerService.getOverview();
-      setOverview(data);
+    const data = await ownerService.getOverview();
+    setOverview(data);
       setError('');
     } catch (err) {
       console.error('Error loading overview:', err);
       setError(err.message || 'Failed to load overview');
     }
   };
-
   const loadSpaces = async () => {
     try {
-      const data = await ownerService.getSpaces();
-      setSpaces(data.spaces || []);
+    const data = await ownerService.getSpaces();
+    setSpaces(data.spaces || []);
       setError('');
     } catch (err) {
       console.error('Error loading spaces:', err);
       setError(err.message || 'Failed to load spaces');
     }
   };
-
   const loadBookings = async (scope = 'active') => {
     try {
-      const data = await ownerService.getBookings(scope);
-      setBookings(data.bookings || []);
+    const data = await ownerService.getBookings(scope);
+    setBookings(data.bookings || []);
       setError('');
     } catch (err) {
       console.error('Error loading bookings:', err);
       setError(err.message || 'Failed to load bookings');
     }
   };
-
   const loadTourBookings = async () => {
     try {
-      const data = await ownerService.getTourRequests();
-      setTourBookings(data.tourBookings || []);
+    const data = await ownerService.getTourRequests();
+    setTourBookings(data.tourBookings || []);
       setError('');
     } catch (err) {
       console.error('Error loading tour bookings:', err);
       setError(err.message || 'Failed to load tour bookings');
     }
   };
-
   const loadAgreements = async () => {
     try {
-      const data = await ownerService.getAgreements();
-      setAgreements(data.agreements || []);
+    const data = await ownerService.getAgreements();
+    setAgreements(data.agreements || []);
       setError('');
     } catch (err) {
       console.error('Error loading agreements:', err);
       setError(err.message || 'Failed to load agreements');
     }
   };
-
   const loadReviews = async () => {
     try {
-      const data = await ownerService.getReviews();
-      setReviews(data.reviews || []);
+    const data = await ownerService.getReviews();
+    setReviews(data.reviews || []);
       setError('');
     } catch (err) {
       console.error('Error loading reviews:', err);
       setError(err.message || 'Failed to load reviews');
     }
   };
-
   const loadEarningsReport = async () => {
     try {
-      const data = await ownerService.getEarningsReport();
-      setEarningsReport(data.earnings || []);
+    const data = await ownerService.getEarningsReport();
+    setEarningsReport(data.earnings || []);
       setError('');
     } catch (err) {
       console.error('Error loading earnings report:', err);
       setError(err.message || 'Failed to load earnings report');
     }
   };
-
   const handleCapabilitySelect = (capability) => {
     if (capability.tab) {
       setActiveTab(capability.tab);
@@ -209,7 +180,6 @@ export default function WorkspaceOwnerDashboard() {
       window.location.href = capability.href;
     }
   };
-
   const startSpaceEdit = (space) => {
     resetMessages();
     setEditingSpaceId(space._id);
@@ -223,7 +193,6 @@ export default function WorkspaceOwnerDashboard() {
       description: space.description || ''
     });
   };
-
   const handleSpaceSubmit = async (event) => {
     event.preventDefault();
     resetMessages();
@@ -237,7 +206,6 @@ export default function WorkspaceOwnerDashboard() {
         images: spaceForm.imagesInput.split('\n').map((item) => item.trim()).filter(Boolean),
         description: spaceForm.description.trim()
       };
-
       if (editingSpaceId) {
         await ownerService.updateSpace(editingSpaceId, payload);
         setSuccess('Workspace updated successfully.');
@@ -245,7 +213,6 @@ export default function WorkspaceOwnerDashboard() {
         await ownerService.createSpace(payload);
         setSuccess('Workspace created successfully.');
       }
-
       await loadSpaces();
       await loadOverview();
       setEditingSpaceId(null);
@@ -254,7 +221,6 @@ export default function WorkspaceOwnerDashboard() {
       setError(err.message || 'Failed to save workspace.');
     }
   };
-
   const handleDeleteSpace = async (spaceId) => {
     if (!window.confirm('Delete this workspace?')) return;
     resetMessages();
@@ -267,7 +233,6 @@ export default function WorkspaceOwnerDashboard() {
       setError(err.message || 'Failed to delete workspace.');
     }
   };
-
   const handleAgreementSubmit = async (event) => {
     event.preventDefault();
     resetMessages();
@@ -283,23 +248,6 @@ export default function WorkspaceOwnerDashboard() {
       setError(err.message || 'Failed to save agreement.');
     }
   };
-
-  const handleReviewSubmit = async (event) => {
-    event.preventDefault();
-    resetMessages();
-    try {
-      if (!reviewForm.space) {
-        throw new Error('Select a workspace to attach the review.');
-      }
-      await ownerService.createReview(reviewForm);
-      await loadReviews();
-      setReviewForm(DEFAULT_REVIEW_FORM);
-      setSuccess('Review captured.');
-    } catch (err) {
-      setError(err.message || 'Failed to save review.');
-    }
-  };
-
   const toggleReviewStatus = async (review) => {
     resetMessages();
     try {
@@ -311,7 +259,6 @@ export default function WorkspaceOwnerDashboard() {
       setError(err.message || 'Failed to update review status.');
     }
   };
-
   const handleSupportSubmit = async (event) => {
     event.preventDefault();
     resetMessages();
@@ -326,7 +273,20 @@ export default function WorkspaceOwnerDashboard() {
       setError(err.message || 'Failed to submit support ticket.');
     }
   };
-
+  const handleCompleteBooking = async (bookingId) => {
+    if (!window.confirm('Mark this booking as completed?')) return;
+    resetMessages();
+    try {
+      const response = await ownerService.completeBooking(bookingId);
+      console.log('Complete booking response:', response);
+      await loadBookings(bookingScope);
+      setSuccess('Booking marked as completed.');
+    } catch (err) {
+      console.error('Complete booking error:', err);
+      const errorMessage = err.message || err.payload?.message || 'Failed to complete booking.';
+      setError(errorMessage);
+    }
+  };
   if (pageLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -344,7 +304,6 @@ export default function WorkspaceOwnerDashboard() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
@@ -353,10 +312,8 @@ export default function WorkspaceOwnerDashboard() {
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Workspace Owner Dashboard</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Operate every workspace workflow from a single control centre.</p>
         </div>
-
         {error && <div className="mb-6 rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-rose-600 dark:text-rose-400">{error}</div>}
         {success && <div className="mb-6 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-emerald-700 dark:text-emerald-400">{success}</div>}
-
         <section className="mb-10">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -380,7 +337,6 @@ export default function WorkspaceOwnerDashboard() {
             ))}
           </div>
         </section>
-
         <div id="owner-tabs" className="mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
           <nav className="-mb-px flex space-x-6">
             {DASHBOARD_TABS.map((tab) => (
@@ -395,7 +351,6 @@ export default function WorkspaceOwnerDashboard() {
             ))}
           </nav>
         </div>
-
         {activeTab === 'stats' && overview && (
           <section className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -404,7 +359,6 @@ export default function WorkspaceOwnerDashboard() {
               <StatCard label="Total Revenue" value={formatCurrency(overview.stats.totalRevenue)} />
               <StatCard label="Tour Requests" value={overview.stats.tourRequests} />
             </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
                 <SectionHeader title="Revenue trend" helper="Monthly totals" />
@@ -439,7 +393,6 @@ export default function WorkspaceOwnerDashboard() {
                 )}
               </div>
             </div>
-
             <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
               <SectionHeader title="Workspace earnings report" helper="Per listing breakdown" />
               {earningsReport.length === 0 ? (
@@ -451,9 +404,8 @@ export default function WorkspaceOwnerDashboard() {
                       <tr className="text-xs uppercase text-slate-500 dark:text-gray-400">
                         <th className="py-2">Workspace</th>
                         <th className="py-2">City</th>
-                        <th className="py-2">Paid revenue</th>
-                        <th className="py-2">Total revenue</th>
-                        <th className="py-2">Completed</th>
+                        <th className="py-2">Total Revenue</th>
+                        <th className="py-2">Completed Bookings</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-gray-700 text-slate-800 dark:text-gray-200">
@@ -461,7 +413,6 @@ export default function WorkspaceOwnerDashboard() {
                         <tr key={row.spaceId}>
                           <td className="py-2 font-semibold">{row.name}</td>
                           <td className="py-2 text-slate-500 dark:text-gray-400">{row.city}</td>
-                          <td className="py-2">{formatCurrency(row.paidRevenue)}</td>
                           <td className="py-2">{formatCurrency(row.totalRevenue)}</td>
                           <td className="py-2">{row.completed}</td>
                         </tr>
@@ -473,7 +424,6 @@ export default function WorkspaceOwnerDashboard() {
             </div>
           </section>
         )}
-
         {activeTab === 'spaces' && (
           <section className="space-y-8">
             <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
@@ -500,7 +450,6 @@ export default function WorkspaceOwnerDashboard() {
                 </div>
               </form>
             </div>
-
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Your listings</h3>
               {spaces.length === 0 ? (
@@ -528,7 +477,6 @@ export default function WorkspaceOwnerDashboard() {
             </div>
           </section>
         )}
-
         {activeTab === 'bookings' && (
           <section className="space-y-6">
             <div className="flex items-center justify-between">
@@ -550,33 +498,51 @@ export default function WorkspaceOwnerDashboard() {
               <EmptyState message="No bookings to show for this view." />
             ) : (
               <div className="space-y-4">
-                {bookings.map((booking) => (
-                  <div key={booking._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4">
+                {bookings.map((booking) => {
+                  const canComplete = (booking.status === 'confirmed' || booking.status === 'pending') &&
+                                     booking.paymentStatus === 'paid' &&
+                                     booking.status !== 'completed';
+                  return (
+                    <div key={booking._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                      <p className="font-semibold text-slate-900 dark:text-white">{booking.space?.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-gray-400">{booking.space?.city}</p>
-                      <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Guest: {booking.user?.fullName || booking.user?.email}</p>
+                          <p className="font-semibold text-slate-900 dark:text-white">{booking.space?.name}</p>
+                          <p className="text-xs text-slate-500 dark:text-gray-400">{booking.space?.city}</p>
+                          <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">Guest: {booking.user?.fullName || booking.user?.email}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600 dark:text-gray-300">Date: {new Date(booking.bookingDate).toLocaleDateString()}</p>
-                      <p className="text-sm text-slate-600 dark:text-gray-300">Type: {booking.type}</p>
+                          <p className="text-sm text-slate-600 dark:text-gray-300">Date: {new Date(booking.bookingDate).toLocaleDateString()}</p>
+                          <p className="text-sm text-slate-600 dark:text-gray-300">Type: {booking.type}</p>
+                          <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">Payment: {booking.paymentStatus || 'pending'}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-slate-800 dark:text-gray-200">{formatCurrency(booking.totalAmount)}</p>
-                      <span className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                        booking.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                          'bg-slate-100 text-slate-600 dark:bg-gray-700 dark:text-gray-300'
+                          <p className="text-sm font-semibold text-slate-800 dark:text-gray-200">{formatCurrency(booking.totalAmount)}</p>
+                          <span className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                            booking.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                            booking.status === 'completed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                              'bg-slate-100 text-slate-600 dark:bg-gray-700 dark:text-gray-300'
                         }`}>
                         {booking.status}
                       </span>
                     </div>
                   </div>
-                ))}
+                      {canComplete && (
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-gray-700 flex justify-end">
+                          <button
+                            onClick={() => handleCompleteBooking(booking._id)}
+                            className="px-4 py-2 rounded-lg bg-blue-600 dark:bg-blue-500 text-white font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 text-sm transition"
+                          >
+                            Mark as Completed
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </section>
         )}
-
         {activeTab === 'tours' && (
           <section className="space-y-6">
             <SectionHeader title="Tour requests" helper="Coordinate walk-throughs and demos" />
@@ -585,18 +551,137 @@ export default function WorkspaceOwnerDashboard() {
             ) : (
               <div className="space-y-4">
                 {tourBookings.map((tour) => (
-                  <div key={tour._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm flex flex-col sm:flex-row sm:justify-between gap-4">
-                    <div>
-                      <p className="font-semibold text-slate-900 dark:text-white">{tour.space?.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-gray-400">{tour.space?.city}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-600 dark:text-gray-300">{tour.contactName}</p>
-                      <p className="text-xs text-slate-500 dark:text-gray-400">{tour.contactEmail}</p>
-                    </div>
-                    <div className="text-right text-sm text-slate-600 dark:text-gray-300">
-                      {new Date(tour.tourDate).toLocaleDateString()} • {tour.tourTime}
-                      <p className="text-xs text-slate-500 dark:text-gray-400">{tour.status}</p>
+                  <div key={tour._id} className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <p className="font-semibold text-slate-900 dark:text-white">{tour.space?.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-gray-400">{tour.space?.city}</p>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            tour.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                            tour.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                            tour.status === 'cancelled' ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' :
+                            'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                          }`}>
+                            {tour.status}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-600 dark:text-gray-300">
+                          <div>
+                            <p className="font-medium mb-1">Contact</p>
+                            <p>{tour.contactName || tour.user?.fullName}</p>
+                            <p className="text-xs text-slate-500 dark:text-gray-400">{tour.contactEmail || tour.user?.email}</p>
+                            {tour.contactPhone && (
+                              <p className="text-xs text-slate-500 dark:text-gray-400">{tour.contactPhone}</p>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium mb-1">Tour Details</p>
+                            <p>{new Date(tour.tourDate).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</p>
+                            <p className="text-xs text-slate-500 dark:text-gray-400">{tour.tourTime}</p>
+                          </div>
+                        </div>
+                        {tour.notes && (
+                          <div className="mt-3 p-3 rounded-lg bg-slate-50 dark:bg-gray-700/50">
+                            <p className="text-xs text-slate-600 dark:text-gray-400">
+                              <span className="font-semibold">Notes: </span>
+                              {tour.notes}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2 sm:items-end">
+                        {tour.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  setError('');
+                                  setSuccess('');
+                                  const response = await ownerService.updateTourStatus(tour._id, 'confirmed');
+                                  setTourBookings(prev => prev.map(t =>
+                                    t._id === tour._id ? { ...t, status: 'confirmed' } : t
+                                  ));
+                                  setSuccess('Tour confirmed successfully');
+                                  setTimeout(() => setSuccess(''), 3000);
+                                } catch (err) {
+                                  console.error('Confirm tour error:', err);
+                                  let errorMessage = 'Failed to confirm tour';
+                                  if (err.message) {
+                                    errorMessage = err.message;
+                                  } else if (err.payload?.message) {
+                                    errorMessage = err.payload.message;
+                                  }
+                                  setError(errorMessage);
+                                  setTimeout(() => setError(''), 5000);
+                                }
+                              }}
+                              className="px-4 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Confirm Tour
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (!window.confirm('Are you sure you want to cancel this tour?')) return;
+                                try {
+                                  setError('');
+                                  setSuccess('');
+                                  await ownerService.updateTourStatus(tour._id, 'cancelled');
+                                  setTourBookings(prev => prev.map(t =>
+                                    t._id === tour._id ? { ...t, status: 'cancelled' } : t
+                                  ));
+                                  setSuccess('Tour cancelled successfully');
+                                  setTimeout(() => setSuccess(''), 3000);
+                                } catch (err) {
+                                  console.error('Cancel tour error:', err);
+                                  let errorMessage = 'Failed to cancel tour';
+                                  if (err.message) {
+                                    errorMessage = err.message;
+                                  } else if (err.payload?.message) {
+                                    errorMessage = err.payload.message;
+                                  }
+                                  setError(errorMessage);
+                                  setTimeout(() => setError(''), 5000);
+                                }
+                              }}
+                              className="px-4 py-2 rounded-lg border border-rose-300 dark:border-rose-500 text-rose-700 dark:text-rose-300 font-medium hover:bg-rose-50 dark:hover:bg-rose-900/20 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Cancel Tour
+                            </button>
+                          </>
+                        )}
+                        {tour.status === 'confirmed' && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                setError('');
+                                setSuccess('');
+                                await ownerService.updateTourStatus(tour._id, 'completed');
+                                setTourBookings(prev => prev.map(t =>
+                                  t._id === tour._id ? { ...t, status: 'completed' } : t
+                                ));
+                                setSuccess('Tour marked as completed');
+                                setTimeout(() => setSuccess(''), 3000);
+                              } catch (err) {
+                                console.error('Complete tour error:', err);
+                                let errorMessage = 'Failed to update tour status';
+                                if (err.message) {
+                                  errorMessage = err.message;
+                                } else if (err.payload?.message) {
+                                  errorMessage = err.payload.message;
+                                }
+                                setError(errorMessage);
+                                setTimeout(() => setError(''), 5000);
+                              }
+                            }}
+                            className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Mark Completed
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -604,7 +689,6 @@ export default function WorkspaceOwnerDashboard() {
             )}
           </section>
         )}
-
         {activeTab === 'agreements' && (
           <section className="space-y-6">
             <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
@@ -644,23 +728,8 @@ export default function WorkspaceOwnerDashboard() {
             </div>
           </section>
         )}
-
         {activeTab === 'reviews' && (
           <section className="space-y-6">
-            <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-              <SectionHeader title="Add review" helper="Record client feedback after visits" />
-              <form onSubmit={handleReviewSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                <SelectField label="Workspace" value={reviewForm.space} onChange={(value) => setReviewForm((prev) => ({ ...prev, space: value }))} options={ownerSpacesForSelect} required />
-                <TextField label="Reviewer name" value={reviewForm.reviewerName} onChange={(value) => setReviewForm((prev) => ({ ...prev, reviewerName: value }))} placeholder="Optional" />
-                <TextField label="Rating (1-5)" type="number" value={reviewForm.rating} onChange={(value) => setReviewForm((prev) => ({ ...prev, rating: Number(value) }))} min="1" max="5" required />
-                <div className="md:col-span-2">
-                  <TextArea label="Comment" value={reviewForm.comment} onChange={(value) => setReviewForm((prev) => ({ ...prev, comment: value }))} rows={3} required />
-                </div>
-                <div className="md:col-span-2 flex justify-end">
-                  <button type="submit" className="px-6 py-3 rounded-xl bg-indigo-600 dark:bg-indigo-500 text-white font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600">Save review</button>
-                </div>
-              </form>
-            </div>
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Guest feedback</h3>
               {reviews.length === 0 ? (
@@ -688,7 +757,6 @@ export default function WorkspaceOwnerDashboard() {
             </div>
           </section>
         )}
-
         {activeTab === 'support' && (
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
@@ -739,7 +807,6 @@ export default function WorkspaceOwnerDashboard() {
     </div>
   );
 }
-
 function StatCard({ label, value, helper }) {
   return (
     <div className="p-6 rounded-2xl border border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
@@ -749,7 +816,6 @@ function StatCard({ label, value, helper }) {
     </div>
   );
 }
-
 function SectionHeader({ title, helper }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -758,11 +824,9 @@ function SectionHeader({ title, helper }) {
     </div>
   );
 }
-
 function EmptyState({ message }) {
   return <div className="text-center py-14 rounded-2xl border border-dashed border-slate-200 dark:border-gray-600 text-slate-500 dark:text-gray-400 text-sm">{message}</div>;
 }
-
 function TextField({ label, value, onChange, type = 'text', placeholder, required, min, max }) {
   return (
     <div>
@@ -780,7 +844,6 @@ function TextField({ label, value, onChange, type = 'text', placeholder, require
     </div>
   );
 }
-
 function TextArea({ label, value, onChange, rows = 3, required }) {
   return (
     <div>
@@ -795,7 +858,6 @@ function TextArea({ label, value, onChange, rows = 3, required }) {
     </div>
   );
 }
-
 function SelectField({ label, value, onChange, options, required }) {
   return (
     <div>

@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const supportTicketSchema = new mongoose.Schema(
   {
     owner: {
@@ -37,9 +36,5 @@ const supportTicketSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
 const SupportTicket = mongoose.model('SupportTicket', supportTicketSchema);
-
 module.exports = SupportTicket;
-
-

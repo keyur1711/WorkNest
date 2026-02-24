@@ -13,5 +13,3 @@ export default function MapView({ spaces }) {
     </div>
   );
 }
-
-

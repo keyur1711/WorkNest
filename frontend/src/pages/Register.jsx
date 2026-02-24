@@ -4,7 +4,6 @@ import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import { useAuth } from '../hooks/useAuth';
 import workspaceImage from '../images/uneebo-office-design-UgYT5nkXdK4-unsplash.jpg';
-
 const ROLE_CHOICES = [
   {
     value: 'user',
@@ -19,7 +18,6 @@ const ROLE_CHOICES = [
     perks: ['Listing tools', 'Owner dashboard', 'Revenue tracking']
   }
 ];
-
 export default function Register() {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -36,21 +34,17 @@ export default function Register() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { register } = useAuth();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     if (!formData.agreeToTerms) {
       setError('Please agree to the terms and conditions');
       return;
     }
-
     setIsLoading(true);
     try {
       const response = await register({
@@ -63,21 +57,30 @@ export default function Register() {
         agreeToTerms: formData.agreeToTerms
       });
       setIsLoading(false);
-
+      const userRole = response?.user?.role;
       setTimeout(() => {
-        const userRole = response?.user?.role;
         if (userRole === 'workspace_owner') {
           navigate('/workspace-owner', { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
         }
-      }, 500);
+      }, 300);
     } catch (err) {
       setIsLoading(false);
-      setError(err.message || 'Unable to create account. Please try again.');
+      console.error('Registration error:', err);
+      let errorMessage = 'Unable to create account. Please try again.';
+      if (err.message) {
+        errorMessage = err.message;
+      } else if (err.payload?.message) {
+        errorMessage = err.payload.message;
+      } else if (err.payload?.errors && Array.isArray(err.payload.errors)) {
+        errorMessage = err.payload.errors.map(e => e.msg || e.message || e).join(', ');
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      }
+      setError(errorMessage);
     }
   };
-
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     if (error) setError('');
@@ -86,13 +89,12 @@ export default function Register() {
       [e.target.name]: value
     });
   };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1 flex items-center justify-center py-12 px-6">
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Left Side - Image */}
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {}
           <div className="hidden lg:block relative rounded-2xl overflow-hidden shadow-2xl">
             <img
               src={workspaceImage}
@@ -105,24 +107,21 @@ export default function Register() {
               <p className="text-blue-100">Create your account and start discovering premium workspaces tailored to your needs.</p>
             </div>
           </div>
-
-          {/* Right Side - Register Form */}
+          {}
           <div className="flex items-center">
-            <div className="w-full max-w-md mx-auto">
+            <div className="w-full max-w-xl mx-auto">
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-10">
                 <div className="mb-8">
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
                   <p className="text-gray-600 dark:text-gray-400">Sign up to get started with WorkNest</p>
                 </div>
-
                 {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
                     {error}
                   </div>
                 )}
-
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Full Name */}
+                  {}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Full Name
@@ -137,8 +136,7 @@ export default function Register() {
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
-                  {/* Email */}
+                  {}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Email Address
@@ -153,8 +151,7 @@ export default function Register() {
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
-                  {/* Phone */}
+                  {}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Phone (Optional)
@@ -168,8 +165,7 @@ export default function Register() {
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-
-                  {/* Password */}
+                  {}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Password
@@ -202,8 +198,7 @@ export default function Register() {
                       </button>
                     </div>
                   </div>
-
-                  {/* Confirm Password */}
+                  {}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Confirm Password
@@ -236,8 +231,7 @@ export default function Register() {
                       </button>
                     </div>
                   </div>
-
-                  {/* Role Selection */}
+                  {}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                       I want to
@@ -263,19 +257,14 @@ export default function Register() {
                               <div className={`w-4 h-4 rounded-full border-2 ${isActive ? 'border-blue-500 bg-blue-500' : 'border-gray-300 dark:border-gray-500'
                                 }`}></div>
                             </div>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{choice.subtitle}</p>
-                            <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                              {choice.perks.map((perk, idx) => (
-                                <li key={idx}>• {perk}</li>
-                              ))}
-                            </ul>
+                            {}
+                            {}
                           </button>
                         );
                       })}
                     </div>
                   </div>
-
-                  {/* Terms Agreement */}
+                  {}
                   <div className="flex items-start gap-2">
                     <input
                       type="checkbox"
@@ -296,28 +285,25 @@ export default function Register() {
                       </Link>
                     </label>
                   </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isLoading ? (
-                      <>
-                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Creating account...
-                      </>
-                    ) : (
-                      'Create Account'
-                    )}
-                  </button>
-                </form>
-
-                {/* Sign In Link */}
+                  {}
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Creating account...
+                          </>
+                        ) : (
+                          'Create Account'
+                        )}
+                      </button>
+                    </form>
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Already have an account?{' '}
