@@ -8,6 +8,10 @@ import { getMyTourBookings } from '../services/bookingService';
 import { getFavorites } from '../services/favoritesService';
 export default function Dashboard() {
   const { user } = useAuth();
+  const isUserPro =
+    user?.subscriptionStatus === 'active' &&
+    user?.subscriptionPlan === 'user_pro' &&
+    user?.subscriptionForRole === 'user';
   const [bookings, setBookings] = useState([]);
   const [tourBookings, setTourBookings] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -126,6 +130,51 @@ export default function Dashboard() {
             </Link>
           </div>
         </div>
+
+        <div className="mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
+                  AI Workspace Assistant
+                </h2>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 max-w-xl">
+                  {isUserPro
+                    ? 'Chat to get smart workspace recommendations and filters.'
+                    : 'Upgrade to User Pro to unlock AI suggestions for your bookings.'}
+                </p>
+                {!isUserPro && (
+                  <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100/70 dark:bg-indigo-900/30 text-indigo-900 dark:text-indigo-100 text-xs font-semibold">
+                    <span className="inline-block w-2 h-2 rounded-full bg-indigo-600" />
+                    Pro locked
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 flex-col sm:flex-row">
+                <Link
+                  to="/ai-assistant"
+                  className={`inline-flex items-center justify-center h-11 px-6 rounded-xl font-bold transition shadow
+                    ${isUserPro
+                      ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:from-indigo-700 hover:to-blue-700'
+                      : 'bg-slate-100 dark:bg-gray-900/40 text-gray-900 dark:text-white border border-slate-200 dark:border-gray-700 hover:bg-slate-200 dark:hover:bg-gray-900/60'
+                    }`}
+                >
+                  {isUserPro ? 'Open assistant' : 'Unlock Pro'}
+                </Link>
+                {!isUserPro && (
+                  <Link
+                    to="/pricing"
+                    className="inline-flex items-center justify-center h-11 px-6 rounded-xl border border-slate-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/50 text-gray-900 dark:text-white font-semibold hover:bg-white dark:hover:bg-gray-800 transition"
+                  >
+                    View pricing
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">

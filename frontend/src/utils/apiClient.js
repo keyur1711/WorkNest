@@ -29,8 +29,13 @@ export const apiClient = {
     }
     const config = {
       method,
+      // Prevent browser caching for API requests.
+      // Some endpoints were returning 304 with no JSON body, which breaks parsing.
+      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
         ...(headers || {})
       }
     };
@@ -59,6 +64,18 @@ export const apiClient = {
     let response;
     try {
       response = await fetch(url, config);
+      // Some browsers/proxies still return 304 with no body; fetch marks it as !ok.
+      if (response.status === 304) {
+        response = await fetch(url, {
+          ...config,
+          cache: 'reload',
+          headers: {
+            ...config.headers,
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache'
+          }
+        });
+      }
     } catch (error) {
       throw new Error('Unable to connect to the server. Please try again.');
     }

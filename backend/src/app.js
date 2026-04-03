@@ -14,6 +14,12 @@ const contactRoutes = require('./routes/contactRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const publicRoutes = require('./routes/publicRoutes');
+
+const allowDevAdminEndpoints =
+  process.env.NODE_ENV !== 'production' ||
+  process.env.ENABLE_DEV_ADMIN_ENDPOINTS === 'true';
+
 const app = express();
 app.use(
   cors({
@@ -28,6 +34,10 @@ app.use(morgan('dev'));
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+app.use('/api/public', publicRoutes);
+
+if (allowDevAdminEndpoints) {
 app.get('/api/reset-admin', async (req, res) => {
   try {
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@worknest.com';
@@ -139,6 +149,15 @@ app.get('/api/check-admin/:email', async (req, res) => {
     return res.status(500).json({ message: 'Failed to check admin', error: error.message });
   }
 });
+} else {
+  app.use('/api/reset-admin', (req, res) => {
+    res.status(404).json({ message: 'Not found' });
+  });
+  app.use('/api/check-admin', (req, res) => {
+    res.status(404).json({ message: 'Not found' });
+  });
+}
+
 app.use('/api/auth', authRoutes);
 app.use('/api/spaces', spaceRoutes);
 app.use('/api/bookings', bookingRoutes);

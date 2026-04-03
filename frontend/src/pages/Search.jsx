@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import SpaceCard from '../components/SpaceCard';
@@ -36,19 +37,12 @@ export default function Search() {
   const { favorites, toggle } = useFavorites();
   const [sortBy, setSortBy] = useState('relevance');
   const [showMap, setShowMap] = useState(false);
+  const [searchParams] = useSearchParams();
   const [spaces, setSpaces] = useState([]);
   const [cities, setCities] = useState([]);
   const [types, setTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [homeCity, setHomeCity] = useState(() => {
-    try {
-      return localStorage.getItem('wn:homeCity') || '';
-    } catch { return ''; }
-  });
-  useEffect(() => {
-    localStorage.setItem('wn:homeCity', homeCity);
-  }, [homeCity]);
   useEffect(() => {
     const loadFilters = async () => {
       try {
@@ -61,6 +55,23 @@ export default function Search() {
     };
     loadFilters();
   }, []);
+  useEffect(() => {
+    const type = searchParams.get('type') || '';
+    const city = searchParams.get('city') || '';
+    const minPrice = searchParams.get('minPrice') || '';
+    const maxPrice = searchParams.get('maxPrice') || '';
+    const sort = searchParams.get('sort') || '';
+
+    setFilterValues({
+      city,
+      type,
+      minPrice,
+      maxPrice
+    });
+
+    if (sort) setSortBy(sort);
+  }, [searchParams]);
+
   useEffect(() => {
     const loadSpaces = async () => {
       try {
@@ -116,16 +127,6 @@ export default function Search() {
                 </div>
                 <span className="font-semibold">results found</span>
               </div>
-              <select
-                className="h-12 px-5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={homeCity}
-                onChange={(e) => setHomeCity(e.target.value)}
-              >
-                <option value="" className="text-gray-900">Commute from</option>
-                {cities.map((c) => (
-                  <option key={c} value={c} className="text-gray-900">{c}</option>
-                ))}
-              </select>
               <select
                 className="h-12 px-5 rounded-lg border border-white/20 bg-white/10 backdrop-blur-md text-white font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={sortBy}
@@ -185,18 +186,14 @@ export default function Search() {
                     <p className="text-gray-600 dark:text-gray-300">Try adjusting your filters to see more results.</p>
                   </div>
                 ) : (
-                  spaces.map((s) => {
-                    const commuteMins = homeCity ? (s.city === homeCity ? Math.floor(Math.random() * 20) + 15 : Math.floor(Math.random() * 45) + 45) : undefined;
-                    return (
+                  spaces.map((s) => (
                       <SpaceCard
                         key={s._id || s.id}
                         space={s}
                         onToggleFavorite={toggle}
                         isFavorite={favorites.includes(s._id || s.id)}
-                        commuteMins={commuteMins}
                       />
-                    );
-                  })
+                    ))
                 )}
               </div>
             ) : (

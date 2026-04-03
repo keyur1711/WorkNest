@@ -24,6 +24,8 @@ import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import WorkspaceOwnerRoute from './components/WorkspaceOwnerRoute';
+import UserProRoute from './components/UserProRoute';
+import AiAssistant from './pages/AiAssistant';
 const router = createBrowserRouter([
   { path: '/', element: <Home /> },
   {
@@ -55,6 +57,16 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Pricing />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: '/ai-assistant',
+    element: (
+      <ProtectedRoute>
+        <UserProRoute>
+          <AiAssistant />
+        </UserProRoute>
       </ProtectedRoute>
     )
   },

@@ -1,14 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import { useAuth } from '../hooks/useAuth';
-import { selectSubscriptionPlan } from '../services/subscriptionService';
+import {
+  createSubscriptionOrder,
+  getMySubscription,
+  selectSubscriptionPlan,
+  verifySubscriptionPayment
+} from '../services/subscriptionService';
 
 export default function Pricing() {
   const { user, refreshUser } = useAuth();
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [currentSubscription, setCurrentSubscription] = useState(null);
+  const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
+
+  const formatDate = (dateLike) => {
+    if (!dateLike) return 'N/A';
+    try {
+      const d = new Date(dateLike);
+      if (Number.isNaN(d.getTime())) return 'N/A';
+      return d.toLocaleDateString();
+    } catch {
+      return 'N/A';
+    }
+  };
 
   const userPlans = [
     {
@@ -44,27 +62,131 @@ export default function Pricing() {
     }
   ];
 
+  const allPlans = [...userPlans, ...ownerPlans];
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleSelectPlan = async (planKey) => {
     if (!user) {
       setError('Please log in to select a subscription plan.');
       setMessage('');
       return;
     }
-    setIsUpdating(true);
-    setError('');
-    setMessage('');
     try {
-      const response = await selectSubscriptionPlan(planKey);
-      await refreshUser();
-      setMessage(response.message || 'Subscription updated successfully.');
+      if (isPlanActive(planKey)) return;
+
+      const selectedPlan = allPlans.find((p) => p.key === planKey);
+      if (!selectedPlan) {
+        setError('Invalid subscription plan selected.');
+        return;
+      }
+
+      setIsUpdating(true);
+      setError('');
+      setMessage('');
+
+      const isFreePlan = Number(selectedPlan.price) === 0;
+
+      if (isFreePlan) {
+        const response = await selectSubscriptionPlan(planKey);
+        setCurrentSubscription(response?.subscription || null);
+        await refreshUser();
+        setMessage(response.message || 'Subscription updated successfully.');
+        setIsUpdating(false);
+        return;
+      }
+
+      const razorpayLoaded = await loadRazorpayScript();
+      if (!razorpayLoaded) {
+        throw new Error('Failed to load payment gateway. Please try again.');
+      }
+
+      const orderResponse = await createSubscriptionOrder(planKey);
+
+      const options = {
+        key: orderResponse.keyId,
+        amount: orderResponse.amount,
+        currency: orderResponse.currency,
+        name: 'WorkNest',
+        description: selectedPlan.name,
+        order_id: orderResponse.orderId,
+        handler: async function (response) {
+          try {
+            const verifyResponse = await verifySubscriptionPayment({
+              planKey,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+            setCurrentSubscription(verifyResponse?.subscription || null);
+            await refreshUser();
+            setMessage(verifyResponse.message || 'Subscription activated successfully.');
+          } catch (err) {
+            const msg = err.message || err.payload?.message || 'Failed to activate subscription.';
+            setError(msg);
+          } finally {
+            setIsUpdating(false);
+          }
+        },
+        prefill: {
+          name: user.fullName || '',
+          email: user.email || '',
+          contact: user.phone || ''
+        },
+        theme: {
+          color: '#2563eb'
+        },
+        modal: {
+          ondismiss: function () {
+            setIsUpdating(false);
+            setError('Payment cancelled. Subscription was not activated.');
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
     } catch (err) {
       const msg = err.message || err.payload?.message || 'Failed to update subscription.';
-      setError(msg);
-    } finally {
       setIsUpdating(false);
+      setError(msg);
     }
   };
   const role = user?.role;
+
+  useEffect(() => {
+    const loadSubscription = async () => {
+      if (!user) return;
+      setIsLoadingSubscription(true);
+      setError('');
+      try {
+        const response = await getMySubscription();
+        setCurrentSubscription(response?.subscription || null);
+      } catch (err) {
+        // Non-blocking: the pricing cards still render without this info.
+        setCurrentSubscription(null);
+        setError(err.message || err.payload?.message || 'Failed to load current subscription.');
+      } finally {
+        setIsLoadingSubscription(false);
+      }
+    };
+    loadSubscription();
+  }, [user]);
+
+  const currentPlanKey = currentSubscription?.plan;
+  const isPlanActive = (planKey) => currentSubscription?.status === 'active' && currentPlanKey === planKey;
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       <Navbar />
@@ -114,6 +236,15 @@ export default function Pricing() {
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
               Choose a plan to control access to upcoming AI features in your account.
             </p>
+            {user && (
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                {isLoadingSubscription
+                  ? 'Loading your subscription...'
+                  : currentSubscription?.status === 'active'
+                    ? `Current plan: ${currentSubscription.plan} (valid till ${formatDate(currentSubscription.expiresAt)})`
+                    : 'No active subscription yet.'}
+              </p>
+            )}
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
               {userPlans.map((plan) => (
                 <div key={plan.key} className="p-6 rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -129,10 +260,15 @@ export default function Pricing() {
                   </div>
                   <button
                     onClick={() => handleSelectPlan(plan.key)}
-                    disabled={isUpdating || !user || (role !== 'user' && role !== 'admin')}
+                    disabled={
+                      isUpdating ||
+                      !user ||
+                      (role !== 'user' && role !== 'admin') ||
+                      isPlanActive(plan.key)
+                    }
                     className="mt-4 w-full h-11 rounded-lg bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-600 text-white font-semibold hover:from-sky-600 hover:via-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                   >
-                    {isUpdating ? 'Updating...' : 'Select plan'}
+                    {isPlanActive(plan.key) ? 'Current plan' : isUpdating ? 'Updating...' : 'Select plan'}
                   </button>
                 </div>
               ))}
@@ -145,6 +281,15 @@ export default function Pricing() {
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
               Free plan lets you list 1 space. Upgrade to add multiple spaces.
             </p>
+            {user && (
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                {isLoadingSubscription
+                  ? 'Loading your subscription...'
+                  : currentSubscription?.status === 'active'
+                    ? `Current plan: ${currentSubscription.plan} (valid till ${formatDate(currentSubscription.expiresAt)})`
+                    : 'No active subscription yet.'}
+              </p>
+            )}
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
               {ownerPlans.map((plan) => (
                 <div key={plan.key} className="p-6 rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -160,10 +305,10 @@ export default function Pricing() {
                   </div>
                   <button
                     onClick={() => handleSelectPlan(plan.key)}
-                    disabled={isUpdating}
+                    disabled={isUpdating || !user || isPlanActive(plan.key)}
                     className="mt-4 w-full h-11 rounded-lg bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white font-semibold hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                   >
-                    {isUpdating ? 'Updating...' : 'Select plan'}
+                    {isPlanActive(plan.key) ? 'Current plan' : isUpdating ? 'Updating...' : 'Select plan'}
                   </button>
                 </div>
               ))}

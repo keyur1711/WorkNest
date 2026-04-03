@@ -1,5 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const { sendContactNotification } = require('../services/emailService');
 const router = express.Router();
 router.post(
   '/',
@@ -24,11 +25,28 @@ router.post(
         subject: subject || 'General inquiry',
         company,
         phone,
-        message
+        messageLength: message?.length
       });
+
+      let emailSent = false;
+      try {
+        const result = await sendContactNotification({
+          fullName,
+          email,
+          message,
+          subject,
+          company,
+          phone
+        });
+        emailSent = Boolean(result?.success);
+      } catch (mailErr) {
+        console.error('Contact email failed:', mailErr.message);
+      }
+
       return res.status(201).json({
         message: 'Thank you for contacting us! We will get back to you soon.',
-        submitted: true
+        submitted: true,
+        emailSent
       });
     } catch (error) {
       console.error('Contact form error:', error);

@@ -143,9 +143,78 @@ const sendVerificationEmail = async (email, verificationToken, fullName = '') =>
   }
 };
 
+/**
+ * Notify site inbox when someone submits the contact form.
+ * Uses CONTACT_INBOX_EMAIL or falls back to SMTP_USER as recipient.
+ */
+const sendContactNotification = async ({
+  fullName,
+  email,
+  message,
+  subject,
+  company,
+  phone
+}) => {
+  const emailTransporter = initializeEmailService();
+  const to = process.env.CONTACT_INBOX_EMAIL || process.env.SMTP_USER;
+  if (!emailTransporter || !to) {
+    console.warn(
+      'Contact notification skipped: SMTP not configured or no inbox address.'
+    );
+    return { success: false, reason: 'not_configured' };
+  }
+
+  const subj = subject?.trim() || 'General inquiry';
+  const safeName = fullName || 'Visitor';
+  const safeEmail = email || '';
+  const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"><title>WorkNest contact</title></head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #333;">New contact form submission</h2>
+        <p><strong>Name:</strong> ${escapeHtml(safeName)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(safeEmail)}</p>
+        ${company ? `<p><strong>Company:</strong> ${escapeHtml(company)}</p>` : ''}
+        ${phone ? `<p><strong>Phone:</strong> ${escapeHtml(phone)}</p>` : ''}
+        <p><strong>Subject:</strong> ${escapeHtml(subj)}</p>
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 16px 0;">
+        <p style="white-space: pre-wrap;">${escapeHtml(message || '')}</p>
+      </body>
+      </html>
+    `;
+
+  const mailOptions = {
+    from: `"WorkNest Contact" <${process.env.SMTP_USER}>`,
+    to,
+    replyTo: safeEmail,
+    subject: `[WorkNest Contact] ${subj} — ${safeName}`,
+    html: htmlContent
+  };
+
+  try {
+    const info = await emailTransporter.sendMail(mailOptions);
+    console.log('Contact notification sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending contact notification:', error);
+    throw new Error('Failed to send contact notification');
+  }
+};
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 module.exports = {
   generateOTP,
   sendOTPEmail,
   sendVerificationEmail,
+  sendContactNotification,
   initializeEmailService
 };

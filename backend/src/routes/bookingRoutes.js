@@ -124,7 +124,7 @@ router.get('/my-bookings', auth, async (req, res) => {
       query.status = { $ne: 'cancelled' };
     }
     const bookings = await Booking.find(query)
-      .populate('space', 'name locationText pricePerDay images')
+      .populate('space', 'name city type locationText pricePerDay images')
       .sort({ bookingDate: -1 });
     return res.json({ bookings });
   } catch (error) {

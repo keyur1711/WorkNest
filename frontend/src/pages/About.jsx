@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
+import { getPublicStats } from '../services/publicService';
 import homePageImage from '../images/Home_page.jpg';
 import coworkingSpace1 from '../images/running-a-successful-coworking-space-5aaa98c0bb414814ce745dc8.jpg';
 import coworkingSpace2 from '../images/austin-distel-wawEfYdpkag-unsplash.jpg';
@@ -12,12 +14,73 @@ import privateOffice from '../images/private_office.jpeg';
 import hotDesk from '../images/hot_desk.jpeg';
 import workspaceDesign1 from '../images/The-Anatomy-of-Good-Coworking-Space-Design-In-Pictures-Fohlio-Product-Specification-and-Materials-Budget-Calculator-The-Assemblage-1.webp';
 import workspaceDesign2 from '../images/The-Anatomy-of-Good-Coworking-Space-Design-In-Pictures-Fohlio-Product-Specification-and-Materials-Budget-Calculator-WeWork-Shanghai-1.webp';
+const STAT_FALLBACK = {
+  cities: '12+',
+  spaces: '1,200+',
+  bookings: '50k+',
+  avg: '4.7/5'
+};
+
+function formatCount(n) {
+  if (n == null || Number.isNaN(Number(n))) return null;
+  const num = Number(n);
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M+`;
+  if (num >= 1_000) return `${Math.round(num / 100) / 10}k+`;
+  return `${num}+`;
+}
+
 export default function About() {
+  const [liveStats, setLiveStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await getPublicStats();
+        if (!cancelled) setLiveStats(data);
+      } catch {
+        if (!cancelled) setLiveStats(null);
+      } finally {
+        if (!cancelled) setStatsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const citiesValue =
+    statsLoading && liveStats == null
+      ? '…'
+      : liveStats?.citiesCount != null
+        ? `${liveStats.citiesCount}+`
+        : STAT_FALLBACK.cities;
+  const spacesValue =
+    statsLoading && liveStats == null
+      ? '…'
+      : liveStats?.spacesCount != null
+        ? formatCount(liveStats.spacesCount) || `${liveStats.spacesCount}+`
+        : STAT_FALLBACK.spaces;
+  const bookingsValue =
+    statsLoading && liveStats == null
+      ? '…'
+      : liveStats?.bookingsCompleted != null
+        ? formatCount(liveStats.bookingsCompleted) ||
+          `${liveStats.bookingsCompleted}+`
+        : STAT_FALLBACK.bookings;
+  const avgValue =
+    statsLoading && liveStats == null
+      ? '…'
+      : liveStats?.avgRating != null
+        ? `${liveStats.avgRating.toFixed(1)}/5`
+        : STAT_FALLBACK.avg;
+
   const stats = [
-    { label: 'Cities Served', value: '12+', image: coworkingSpace1 },
-    { label: 'Spaces Listed', value: '1,200+', image: coworkingSpace2 },
-    { label: 'Bookings Completed', value: '50k+', image: coworkingSpace3 },
-    { label: 'Avg. Rating', value: '4.7/5', image: coworkingSpace4 }
+    { label: 'Cities Served', value: citiesValue, image: coworkingSpace1 },
+    { label: 'Spaces Listed', value: spacesValue, image: coworkingSpace2 },
+    { label: 'Bookings Completed', value: bookingsValue, image: coworkingSpace3 },
+    { label: 'Avg. Rating', value: avgValue, image: coworkingSpace4 }
   ];
   const values = [
     {
@@ -82,10 +145,10 @@ export default function About() {
             </div>
             <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {[
-                { label: 'Cities Served', value: '12+', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z', bgClass: 'bg-blue-50', textClass: 'text-blue-600', gradientClass: 'from-blue-500 to-blue-600', image: stats[0].image },
-                { label: 'Spaces Listed', value: '1,200+', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', bgClass: 'bg-brand-50', textClass: 'text-brand-600', gradientClass: 'from-brand-500 to-brand-600', image: stats[1].image },
-                { label: 'Bookings Completed', value: '50k+', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', bgClass: 'bg-green-50', textClass: 'text-green-600', gradientClass: 'from-green-500 to-green-600', image: stats[2].image },
-                { label: 'Avg. Rating', value: '4.7/5', icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z', bgClass: 'bg-amber-50', textClass: 'text-amber-600', gradientClass: 'from-amber-500 to-amber-600', image: stats[3].image }
+                { label: stats[0].label, value: stats[0].value, icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z', bgClass: 'bg-blue-50', textClass: 'text-blue-600', gradientClass: 'from-blue-500 to-blue-600', image: stats[0].image },
+                { label: stats[1].label, value: stats[1].value, icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', bgClass: 'bg-brand-50', textClass: 'text-brand-600', gradientClass: 'from-brand-500 to-brand-600', image: stats[1].image },
+                { label: stats[2].label, value: stats[2].value, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', bgClass: 'bg-green-50', textClass: 'text-green-600', gradientClass: 'from-green-500 to-green-600', image: stats[2].image },
+                { label: stats[3].label, value: stats[3].value, icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z', bgClass: 'bg-amber-50', textClass: 'text-amber-600', gradientClass: 'from-amber-500 to-amber-600', image: stats[3].image }
               ].map((s) => (
                 <div key={s.label} className="group relative overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity">

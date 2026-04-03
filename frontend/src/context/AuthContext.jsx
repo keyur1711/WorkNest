@@ -108,6 +108,8 @@ export const AuthProvider = ({ children }) => {
       user: authState.user,
       token: authState.token,
       isAuthenticated: Boolean(authState.token),
+      /** Alias for components that expect `loading` (e.g. ProtectedRoute). */
+      loading: isProcessing,
       isProcessing,
       login,
       register,

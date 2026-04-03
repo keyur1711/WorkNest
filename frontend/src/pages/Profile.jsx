@@ -5,7 +5,7 @@ import Footer from '../shared/Footer';
 import { useAuth } from '../hooks/useAuth';
 import { getUserProfile, updateUserProfile } from '../services/authService';
 export default function Profile() {
-  const { user, setUser } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -50,7 +50,7 @@ export default function Profile() {
     try {
       const data = await updateUserProfile(formData);
       if (data.user) {
-        setUser(data.user);
+        await refreshUser();
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       }
